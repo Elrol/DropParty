@@ -13,10 +13,13 @@ import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import com.github.elrol.dropparty.config.DefaultConfiguration;
+import com.github.elrol.dropparty.config.DropConfiguration;
+import com.github.elrol.dropparty.config.TierConfiguration;
 import com.github.elrol.dropparty.libs.PluginInfo;
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 @Plugin(id = PluginInfo.ID, name = PluginInfo.NAME, version = PluginInfo.VERSION, description = PluginInfo.DESC)
@@ -27,14 +30,19 @@ public class Main {
 	
 	@Inject
 	private Logger logger;
-
+	
 	@Inject
 	@DefaultConfig(sharedRoot = false)
-	private File configuration;
+	private File defaultConfig;
+	private File tierConfig = new File("config/" + PluginInfo.ID + "/tiers.cfg");
+	private File dropConfig = new File("config/" + PluginInfo.ID + "/drops.cfg");
+	
 	
 	@Inject
 	@DefaultConfig(sharedRoot = false)
 	private ConfigurationLoader<CommentedConfigurationNode> configManager;
+	private ConfigurationLoader<CommentedConfigurationNode> tierManager = HoconConfigurationLoader.builder().setFile(tierConfig).build();
+	private ConfigurationLoader<CommentedConfigurationNode> dropManager = HoconConfigurationLoader.builder().setFile(dropConfig).build();
 	
 	@Listener
 	public void onServerStart(GameStartedServerEvent event) {
@@ -53,7 +61,10 @@ public class Main {
 	
 	@Listener
 	public void init(GameInitializationEvent event){
-		DefaultConfiguration.getInstance().setup(configuration, configManager);
+		logger.info("Registering Configs");
+		DefaultConfiguration.getInstance().setup(defaultConfig, configManager);
+		TierConfiguration.getInstance().setup(tierConfig, tierManager);
+		DropConfiguration.getInstance().setup(dropConfig, dropManager);
 	}
 	
 	@Listener

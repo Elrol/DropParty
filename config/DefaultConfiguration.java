@@ -23,12 +23,13 @@ public class DefaultConfiguration {
 			try {
 				configFile.createNewFile();
 				loadConfig();
-				config.getNode("DropParty", "Tier Drops", "Tier 0").setValue(42).setComment("Drop chance of Common items");
-				config.getNode("DropParty", "Tier Drops", "Tier 1").setValue(25).setComment("Drop chance of Uncommon items");
-				config.getNode("DropParty", "Tier Drops", "Tier 2").setValue(17).setComment("Drop chance of rare items");
-				config.getNode("DropParty", "Tier Drops", "Tier 3").setValue(10).setComment("Drop chance of epic items");
-				config.getNode("DropParty", "Tier Drops", "Tier 4").setValue(5).setComment("Drop chance of legendary items");
-				config.getNode("DropParty", "Tier Drops", "Tier 5").setValue(1).setComment("Drop chance of mythic items");
+				config.getNode("DropParty", "Tier Drops").setComment("All values must be integers and total 100");
+				config.getNode("DropParty", "Tier Drops", "Tier 0").setValue(42);
+				config.getNode("DropParty", "Tier Drops", "Tier 1").setValue(25);
+				config.getNode("DropParty", "Tier Drops", "Tier 2").setValue(17);
+				config.getNode("DropParty", "Tier Drops", "Tier 3").setValue(10);
+				config.getNode("DropParty", "Tier Drops", "Tier 4").setValue(5);
+				config.getNode("DropParty", "Tier Drops", "Tier 5").setValue(1);
 				saveConfig();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -53,7 +54,7 @@ public class DefaultConfiguration {
 	
 	public void loadConfig() {
 		try {
-			loader.load();
+			config = loader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

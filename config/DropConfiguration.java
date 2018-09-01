@@ -47,7 +47,7 @@ public class DropConfiguration {
 	
 	public void loadConfig() {
 		try {
-			loader.load();
+			config = loader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

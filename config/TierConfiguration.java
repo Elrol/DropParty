@@ -8,8 +8,11 @@ import java.util.List;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 
+import com.google.common.reflect.TypeToken;
+
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class TierConfiguration {
 
@@ -17,17 +20,18 @@ public class TierConfiguration {
 	
 	private ConfigurationLoader<CommentedConfigurationNode> loader;
 	private CommentedConfigurationNode config;
-	private List<ItemType> tier1Items = new ArrayList<ItemType>();
-	private List<ItemType> tier2Items = new ArrayList<ItemType>();
-	private List<ItemType> tier3Items = new ArrayList<ItemType>();
-	private List<ItemType> tier4Items = new ArrayList<ItemType>();
-	private List<ItemType> tier5Items = new ArrayList<ItemType>();
+	public List<ItemType> tier1Items = new ArrayList<ItemType>();
+	public List<ItemType> tier2Items = new ArrayList<ItemType>();
+	public List<ItemType> tier3Items = new ArrayList<ItemType>();
+	public List<ItemType> tier4Items = new ArrayList<ItemType>();
+	public List<ItemType> tier5Items = new ArrayList<ItemType>();
 	
 	
 	public static TierConfiguration getInstance() {
 		return instance;
 	}
 	
+	@SuppressWarnings("serial")
 	public void setup(File configFile, ConfigurationLoader<CommentedConfigurationNode> loader) {
 		this.loader = loader;
 		loadDefaults();
@@ -35,11 +39,13 @@ public class TierConfiguration {
 			try {
 				configFile.createNewFile();
 				loadConfig();
-				config.getNode("Tier 1").setComment("A list of Items that are Uncommon").setValue(tier1Items);
-				config.getNode("Tier 2").setComment("A list of Items that are Rare").setValue(tier2Items);
-				config.getNode("Tier 3").setComment("A list of Items that are Epic").setValue(tier3Items);
-				config.getNode("Tier 4").setComment("A list of Items that are Legendary").setValue(tier4Items);
-				config.getNode("Tier 5").setComment("A list of Items that are Mythic").setValue(tier5Items);
+				try {
+					config.getNode("Tier 1").setComment("A list of Items that are Uncommon").setValue(new TypeToken<List<ItemType>>() {}, tier1Items);
+					config.getNode("Tier 2").setComment("A list of Items that are Rare").setValue(new TypeToken<List<ItemType>>() {}, tier2Items);
+					config.getNode("Tier 3").setComment("A list of Items that are Epic").setValue(new TypeToken<List<ItemType>>() {}, tier3Items);
+					config.getNode("Tier 4").setComment("A list of Items that are Legendary").setValue(new TypeToken<List<ItemType>>() {}, tier4Items);
+					config.getNode("Tier 5").setComment("A list of Items that are Mythic").setValue(new TypeToken<List<ItemType>>() {}, tier5Items);
+				} catch(ObjectMappingException e) {}
 				saveConfig();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -64,7 +70,7 @@ public class TierConfiguration {
 	
 	public void loadConfig() {
 		try {
-			loader.load();
+			config = loader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
