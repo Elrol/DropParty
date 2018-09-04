@@ -11,6 +11,36 @@ import com.github.elrol.dropparty.libs.PluginPermissions;
 public class CommandRegistry {
 
 	public static void setup(Main main) {
+		
+		//DropParty tier remove [tier] {item:meta}
+		CommandSpec dropPartyTierRemove = CommandSpec.builder()
+				.description(Text.of("Removes an item for the specified tier"))
+				.permission(PluginPermissions.dropPartyTierRemove)
+				.arguments(
+						GenericArguments.integer(Text.of("tier")),
+						GenericArguments.optional(GenericArguments.string(Text.of("item"))))
+				.executor(new DropPartyTierExecutor(2))
+				.build();
+		//DropParty tier add [tier] {item:meta}
+		CommandSpec dropPartyTierAdd = CommandSpec.builder()
+				.description(Text.of("Adds an item for the specified tier"))
+				.permission(PluginPermissions.dropPartyTierAdd)
+				.arguments(
+						GenericArguments.integer(Text.of("tier")))
+				.executor(new DropPartyTierExecutor(1))
+				.build();
+		
+		//DropParty tier [tier]
+		CommandSpec dropPartyTier = CommandSpec.builder()
+				.description(Text.of("Lists items for the specified tier"))
+				.permission(PluginPermissions.dropPartyTier)
+				.arguments(
+						GenericArguments.integer(Text.of("tier")))
+				.child(dropPartyTierAdd, "add", "a")
+				.child(dropPartyTierRemove, "remove", "r")
+				.executor(new DropPartyTierExecutor(0))
+				.build();
+		
 		//DropParty rename [name] [newname]
 		CommandSpec dropPartyRename = CommandSpec.builder()
 				.description(Text.of("Renames the party specified to the new name"))
@@ -119,6 +149,7 @@ public class CommandRegistry {
 			    .child(dropPartyDrop, "drop")
 			    .child(dropPartyRemove, "remove")
 			    .child(dropPartyRename, "rename")
+			    .child(dropPartyTier, "tier")
 			    .executor(new DropPartyExecutor())
 			    .build();
 
