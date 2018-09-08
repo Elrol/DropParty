@@ -6,16 +6,96 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
 import com.github.elrol.dropparty.Main;
-import com.github.elrol.dropparty.libs.PluginPermissions;
+import com.github.elrol.dropparty.commands.arguments.DropPartyArguments;
+import com.github.elrol.dropparty.libs.PluginInfo.Descriptions;
+import com.github.elrol.dropparty.libs.PluginInfo.Permissions;
 
 public class CommandRegistry {
 
 	public static void setup(Main main) {
+		//DropParty droplist create [name]
+		CommandSpec dropPartyDropListCreate = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropListCreate)
+				.permission(Permissions.dropPartyDropListCreate)
+				.arguments(
+						GenericArguments.string(Text.of("name")))
+				.executor(new DropPartyDropListExecutor(5))
+				.build();
+		
+		//DropParty droplist add [name]
+		CommandSpec dropPartyDropListAddAll = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropListAddAll)
+				.permission(Permissions.dropPartyDropListAddAll)
+				.arguments(
+						DropPartyArguments.droplistName(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("party")))
+				.executor(new DropPartyDropListExecutor(4))
+				.build();
+		
+		
+		//DropParty droplist clear [name]
+		CommandSpec dropPartyDropListClear = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropListClear)
+				.permission(Permissions.dropPartyDropListClear)
+				.arguments(
+						DropPartyArguments.droplistName(Text.of("name")))
+				.executor(new DropPartyDropListExecutor(3))
+				.build();
+		
+		
+		//DropParty droplist add [name]
+		CommandSpec dropPartyDropListRemove = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropListRemove)
+				.permission(Permissions.dropPartyDropListRemove)
+				.arguments(
+						DropPartyArguments.droplistName(Text.of("name")))
+				.executor(new DropPartyDropListExecutor(2))
+				.build();
+				
+		//DropParty droplist add [name]
+		CommandSpec dropPartyDropListAdd = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropListAdd)
+				.permission(Permissions.dropPartyDropListAdd)
+				.arguments(
+						DropPartyArguments.droplistName(Text.of("name")))
+				.executor(new DropPartyDropListExecutor(1))
+				.build();
+		
+		//DropParty droplist [name]
+		CommandSpec dropPartyDropList = CommandSpec.builder()
+				.description(Descriptions.dropPartyDropList)
+				.permission(Permissions.dropPartyDropList)
+				.arguments(
+						DropPartyArguments.droplistName(Text.of("name")))
+				.child(dropPartyDropListAdd, "add")
+				.child(dropPartyDropListRemove, "remove")
+				.child(dropPartyDropListClear, "clear")
+				.child(dropPartyDropListAddAll, "addall")
+				.child(dropPartyDropListCreate, "create")
+				.executor(new DropPartyDropListExecutor(0))
+				.build();
+		//DropParty clear [name]
+		CommandSpec dropPartyClear = CommandSpec.builder()
+				.description(Descriptions.dropPartyClear)
+				.permission(Permissions.dropPartyClear)
+				.arguments(
+						DropPartyArguments.partyName(Text.of("name")))
+				.executor(new DropPartyClearExecutor())
+				.build();
+		//DropParty tp [name] {player}
+		CommandSpec dropPartyTP = CommandSpec.builder()
+				.description(Descriptions.dropPartyTP)
+				.permission(Permissions.dropPartyTP)
+				.arguments(
+						DropPartyArguments.partyName(Text.of("name")),
+						GenericArguments.optional(GenericArguments.player(Text.of("player"))))
+				.executor(new DropPartyTpExecutor())
+				.build();
 		
 		//DropParty tier remove [tier] {item:meta}
 		CommandSpec dropPartyTierRemove = CommandSpec.builder()
-				.description(Text.of("Removes an item for the specified tier"))
-				.permission(PluginPermissions.dropPartyTierRemove)
+				.description(Descriptions.dropPartyTierRemove)
+				.permission(Permissions.dropPartyTierRemove)
 				.arguments(
 						GenericArguments.integer(Text.of("tier")),
 						GenericArguments.optional(GenericArguments.string(Text.of("item"))))
@@ -23,8 +103,8 @@ public class CommandRegistry {
 				.build();
 		//DropParty tier add [tier] {item:meta}
 		CommandSpec dropPartyTierAdd = CommandSpec.builder()
-				.description(Text.of("Adds an item for the specified tier"))
-				.permission(PluginPermissions.dropPartyTierAdd)
+				.description(Descriptions.dropPartyTierAdd)
+				.permission(Permissions.dropPartyTierAdd)
 				.arguments(
 						GenericArguments.integer(Text.of("tier")))
 				.executor(new DropPartyTierExecutor(1))
@@ -32,8 +112,8 @@ public class CommandRegistry {
 		
 		//DropParty tier [tier]
 		CommandSpec dropPartyTier = CommandSpec.builder()
-				.description(Text.of("Lists items for the specified tier"))
-				.permission(PluginPermissions.dropPartyTier)
+				.description(Descriptions.dropPartyTier)
+				.permission(Permissions.dropPartyTier)
 				.arguments(
 						GenericArguments.integer(Text.of("tier")))
 				.child(dropPartyTierAdd, "add", "a")
@@ -43,39 +123,39 @@ public class CommandRegistry {
 		
 		//DropParty rename [name] [newname]
 		CommandSpec dropPartyRename = CommandSpec.builder()
-				.description(Text.of("Renames the party specified to the new name"))
-				.permission(PluginPermissions.dropPartyRename)
+				.description(Descriptions.dropPartyRename)
+				.permission(Permissions.dropPartyRename)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.string(Text.of("newname")))
 				.executor(new DropPartyRenameExecutor())
 				.build();
 		
 		//DropParty remove [name]
 		CommandSpec dropPartyRemove = CommandSpec.builder()
-				.description(Text.of("removes a DropParty setup"))
-				.permission(PluginPermissions.dropPartyRemove)
+				.description(Descriptions.dropPartyRemove)
+				.permission(Permissions.dropPartyRemove)
 				.arguments(
-						GenericArguments.string(Text.of("name")))
+						DropPartyArguments.partyName(Text.of("name")))
 				.executor(new DropPartyRemoveExecutor())
 				.build();
 		
 		//DropParty drop remove [name] [id]
 		CommandSpec dropPartyDropRemove = CommandSpec.builder()
-				.description(Text.of("Removes a drop point from the specified party setup"))
-				.permission(PluginPermissions.dropPartyDropRemove)
+				.description(Descriptions.dropPartyDropRemove)
+				.permission(Permissions.dropPartyDropRemove)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.integer(Text.of("id")))
 				.executor(new DropPartyDropExecutor(2))
 				.build();
 				
 		//DropParty drop add [name] {[x] [y] [z] {dim}}
 		CommandSpec dropPartyDropAdd = CommandSpec.builder()
-				.description(Text.of("Adds a drop point to the specified party setup"))
-				.permission(PluginPermissions.dropPartyDropAdd)
+				.description(Descriptions.dropPartyDropAdd)
+				.permission(Permissions.dropPartyDropAdd)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("x"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("y"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("z"))),
@@ -85,10 +165,10 @@ public class CommandRegistry {
 		
 		//DropParty drop [name]
 		CommandSpec dropPartyDrop = CommandSpec.builder()
-				.description(Text.of("Drop Party Drop point help command"))
-				.permission(PluginPermissions.dropPartyDrop)
+				.description(Descriptions.dropPartyDrop)
+				.permission(Permissions.dropPartyDrop)
 				.arguments(
-						GenericArguments.string(Text.of("name")))
+						DropPartyArguments.partyName(Text.of("name")))
 				.child(dropPartyDropAdd, "add", "a")
 				.child(dropPartyDropRemove, "remove", "r")
 				.executor(new DropPartyDropExecutor(0))
@@ -96,20 +176,20 @@ public class CommandRegistry {
 		
 		//DropParty chest remove [name] [id]
 		CommandSpec dropPartyChestRemove = CommandSpec.builder()
-				.description(Text.of("Removes a chest from the specified party setup"))
-				.permission(PluginPermissions.dropPartyChestRemove)
+				.description(Descriptions.dropPartyChestRemove)
+				.permission(Permissions.dropPartyChestRemove)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.integer(Text.of("id")))
 				.executor(new DropPartyChestExecutor(2))
 				.build();
 				
 		//DropParty chest add [name] {[x] [y] [z] {dim}}
 		CommandSpec dropPartyChestAdd = CommandSpec.builder()
-				.description(Text.of("Adds a chest to the specified party setup"))
-				.permission(PluginPermissions.dropPartyChestAdd)
+				.description(Descriptions.dropPartyChestAdd)
+				.permission(Permissions.dropPartyChestAdd)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("x"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("y"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("z"))),
@@ -118,10 +198,10 @@ public class CommandRegistry {
 				.build();
 		//DropParty chest [name]
 		CommandSpec dropPartyChest = CommandSpec.builder()
-				.description(Text.of("Drop Party Chest help command"))
-				.permission(PluginPermissions.dropPartyChest)
+				.description(Descriptions.dropPartyChest)
+				.permission(Permissions.dropPartyChest)
 				.arguments(
-						GenericArguments.string(Text.of("name")))
+						DropPartyArguments.partyName(Text.of("name")))
 				.child(dropPartyChestAdd, "add", "a")
 				.child(dropPartyChestRemove, "remove", "r")
 				.executor(new DropPartyChestExecutor(0))
@@ -129,10 +209,10 @@ public class CommandRegistry {
 		
 		//DropParty create [name] {[x] [y] [z] {dim}}
 		CommandSpec dropPartyCreate = CommandSpec.builder()
-				.description(Text.of("Drop Party Create help command"))
-				.permission(PluginPermissions.dropPartyCreate)
+				.description(Descriptions.dropPartyCreate)
+				.permission(Permissions.dropPartyCreate)
 				.arguments(
-						GenericArguments.string(Text.of("name")),
+						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("x"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("y"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("z"))),
@@ -142,14 +222,17 @@ public class CommandRegistry {
 		
 		//DropParty
 		CommandSpec dropParty = CommandSpec.builder()
-			    .description(Text.of("Drop Party help command"))
-			    .permission(PluginPermissions.dropParty)
+			    .description(Descriptions.dropParty)
+			    .permission(Permissions.dropParty)
 			    .child(dropPartyCreate, "create")
 			    .child(dropPartyChest, "chest")
 			    .child(dropPartyDrop, "drop")
 			    .child(dropPartyRemove, "remove")
 			    .child(dropPartyRename, "rename")
 			    .child(dropPartyTier, "tier")
+			    .child(dropPartyTP, "teleport", "tp")
+			    .child(dropPartyClear, "clear")
+			    .child(dropPartyDropList, "droplist")
 			    .executor(new DropPartyExecutor())
 			    .build();
 

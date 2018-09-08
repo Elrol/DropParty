@@ -9,6 +9,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
 import org.spongepowered.api.text.Text;
 
@@ -29,26 +30,32 @@ public class DropPartyTierExecutor implements CommandExecutor {
 		if(mode == 0) {
 			List<ItemType> items = TierConfiguration.getInstance().getTier(tier);
 			if(items.isEmpty()) {
-				src.sendMessage(TextLibs.pluginError("No items found for Tier " + tier));
+				TextLibs.sendMessage(src, "No items found for Tier " + tier);
 				return CommandResult.builder().successCount(0).build();
 			}
-			src.sendMessage(TextLibs.pluginMessage("Tier " + tier + " Items:"));
+			TextLibs.sendMessage(src, "Tier " + tier + " Items:");
 			for(ItemType item : items) {
-				src.sendMessage(Text.of(item.getTranslation()));
+				TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + item.getTranslation()));
 			}
 		} else if(mode == 1) {
 			if(src instanceof Player) {
 				Player player = (Player)src;
-				ItemType item = player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType();
-				TierConfiguration.getInstance().addItem(src, tier, item);
+				ItemStack item = player.getEquipped(EquipmentTypes.MAIN_HAND).get();
+				TierConfiguration.getInstance().addItem(src, tier, item.getType());
 				
 			}
-		} else {
+		} else if(mode == 2){
 			if(src instanceof Player) {
 				Player player = (Player)src;
-				ItemType item = player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType();
-				TierConfiguration.getInstance().removeItem(src, tier, item);
+				if(player.getEquipped(EquipmentTypes.MAIN_HAND) != null) {
+					ItemType item = player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType();
+					TierConfiguration.getInstance().removeItem(src, tier, item);
+				} else {
+					TextLibs.sendError(src, "You must be holding the item you want to remove from the list");
+				}
 			}
+		} else {
+			
 		}
 		return CommandResult.success();
 	}

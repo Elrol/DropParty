@@ -10,8 +10,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import com.github.elrol.dropparty.config.DropConfiguration;
-import com.github.elrol.dropparty.libs.BlockPos;
+import com.github.elrol.dropparty.config.SetupConfiguration;
+import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -32,7 +32,7 @@ public class DropPartyDropExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
 				src.sendMessage(TextLibs.pluginMessage("List of drops for " + name));
-				List<BlockPos> drops = DropConfiguration.getInstance().getDrops(name);
+				List<ExtendedBlockPos> drops = SetupConfiguration.getInstance().getDrops(name);
 				if(!drops.isEmpty()) {
 					for(int i = 0; i < drops.size(); i++) {
 						src.sendMessage(Text.of("[" + i + "] X:" + drops.get(i).getX() + ", Y:" + drops.get(i).getY() + ", Z:" + drops.get(i).getZ() + "(" + drops.get(i).getDim() + ")"));
@@ -47,14 +47,14 @@ public class DropPartyDropExecutor implements CommandExecutor {
 					int y = args.<Integer>getOne("y").get();
 					int z = args.<Integer>getOne("z").get();
 					String worldName = Methods.getWorldName(args);
-					int id = DropConfiguration.getInstance().getDropId(name);
+					int id = SetupConfiguration.getInstance().getDropId(name);
 					src.sendMessage(TextLibs.pluginMessage("set drop " + id + " for Party " + name));
-					DropConfiguration.getInstance().addDrop(src, name, new BlockPos(x,y,z, worldName));
+					SetupConfiguration.getInstance().addDrop(src, name, new ExtendedBlockPos(x,y,z, worldName));
 					return CommandResult.success();
 				} else {
 					if(src instanceof Player) {
 						Player player = (Player)src;
-						DropConfiguration.getInstance().addDrop(src, name, Methods.getBlockPos(player));
+						SetupConfiguration.getInstance().addDrop(src, name, Methods.getBlockPos(player));
 						return CommandResult.success();
 					} else {
 						src.sendMessage(TextLibs.pluginError("You must set the coords of a drop while in console"));
@@ -64,7 +64,7 @@ public class DropPartyDropExecutor implements CommandExecutor {
 			}else {
 				if(args.hasAny("id")){
 					int id = args.<Integer>getOne("id").get();
-					DropConfiguration.getInstance().removeDrop(src, name, id);
+					SetupConfiguration.getInstance().removeDrop(src, name, id);
 				}	
 			}
 		}

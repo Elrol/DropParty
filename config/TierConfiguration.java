@@ -90,35 +90,17 @@ public class TierConfiguration {
 	public void addItem(CommandSource src, int tier, ItemType type) {
 		loadConfig();
 		try {
-			List<ItemType> items = config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemType>>() {});
+			List<ItemType> items = getTier(tier);
 			if(!isItemListed(type)) {
-				config.getNode("Tier " + tier).setValue(items.add(type));
+				items.add(type);
+				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
 				saveConfig();
-				src.sendMessage(TextLibs.pluginMessage("Successfully added " + type + " to Tier " + tier));
+				TextLibs.sendMessage(src, "Successfully added '" + type.getTranslation().get() + "' to 'Tier " + tier + "'");
 				return;
 			}
-			src.sendMessage(TextLibs.pluginError("Couldn't add " + type + " to Tier " + tier));
+			TextLibs.sendError(src, "Couldn't add '" + type + "' to 'Tier " + tier + "'");
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	public void removeItem(CommandSource src, int tier, ItemType type) {
-		try {
-			if(isItemListed(tier, type)) {
-				removeItem(src, tier, type);
-			}
-		} catch (ObjectMappingException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("serial")
-	public void removeItem(CommandSource src, ItemType type) throws ObjectMappingException {
-		for(int i = 1; i < 5; i++) {
-			List<ItemType> items = config.getNode("Tier " + i).getValue(new TypeToken<List<ItemType>>() {});
-			if(items.contains(type))
-				items.remove(type);
 		}
 	}
 	
@@ -130,9 +112,9 @@ public class TierConfiguration {
 		return false;
 	}
 	
-	@SuppressWarnings("serial")
-	public boolean isItemListed(int tier, ItemType type) throws ObjectMappingException {
-		List<ItemType> items = config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemType>>() {});
+	public boolean isItemListed(int tier, ItemType type) {
+		loadConfig();
+		List<ItemType> items = getTier(tier);
 		if(items.contains(type)) {
 			return true;
 		}
@@ -141,11 +123,44 @@ public class TierConfiguration {
 	
 	@SuppressWarnings("serial")
 	public List<ItemType> getTier(int tier){
+		loadConfig();
 		try {
 			return config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemType>>() {});
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@SuppressWarnings("serial")
+	public void removeItem(CommandSource src, int tier, ItemType item) {
+		loadConfig();
+		List<ItemType> items = getTier(tier);
+		if(items.contains(item)) {
+			items.remove(item);
+			try {
+				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
+				TextLibs.sendMessage(src, "'" + item.getTranslation().get() + "' was removed from 'Tier " + tier + "'");
+				saveConfig();
+			} catch (ObjectMappingException e) {
+				e.printStackTrace();
+			}
+		} else {
+			TextLibs.sendError(src, "'" + item.getTranslation().get() + "' was not in 'Tier " + tier + "' , could not be removed.");
+			return;
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public void clearTier(CommandSource src, int tier) {
+		loadConfig();
+		List<ItemType> items = new ArrayList<ItemType>();
+		try {
+			config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
+			TextLibs.sendMessage(src, "Cleared 'Tier " + tier + "' of all Items");
+			saveConfig();
+		} catch (ObjectMappingException e) {
+			e.printStackTrace();
+		}
 	}
 }

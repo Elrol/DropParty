@@ -1,11 +1,13 @@
 package com.github.elrol.dropparty.libs;
 
-public class BlockPos {
+import net.minecraft.util.math.BlockPos;
+
+public class ExtendedBlockPos {
 
 	private int x, y, z;
 	private String dim;
 	
-	public BlockPos(int x, int y, int z, String dim) {
+	public ExtendedBlockPos(int x, int y, int z, String dim) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -46,6 +48,10 @@ public class BlockPos {
 	
 	public String toString() {
 		return "[" + dim + "] x:" + x + ", y:" + y + ", z:" + z;
+	}
+	
+	public BlockPos getBlockPos(){
+		return new BlockPos(x, y, z);
 	}
 	
 }

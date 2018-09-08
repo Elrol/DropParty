@@ -10,8 +10,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import com.github.elrol.dropparty.config.DropConfiguration;
-import com.github.elrol.dropparty.libs.BlockPos;
+import com.github.elrol.dropparty.config.SetupConfiguration;
+import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -32,7 +32,7 @@ public class DropPartyChestExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
 				src.sendMessage(TextLibs.pluginMessage("List of chests for " + name));
-				List<BlockPos> chests = DropConfiguration.getInstance().getChests(name);
+				List<ExtendedBlockPos> chests = SetupConfiguration.getInstance().getChests(name);
 				if(!chests.isEmpty()) {
 					for(int i = 0; i < chests.size(); i++) {
 						src.sendMessage(Text.of("[" + i + "] X:" + chests.get(i).getX() + ", Y:" + chests.get(i).getY() + ", Z:" + chests.get(i).getZ() + "(" + chests.get(i).getDim() + ")"));
@@ -47,16 +47,16 @@ public class DropPartyChestExecutor implements CommandExecutor {
 					int y = args.<Integer>getOne("y").get();
 					int z = args.<Integer>getOne("z").get();
 					String worldName = Methods.getWorldName(args);
-					int id = DropConfiguration.getInstance().getChestId(name);
+					int id = SetupConfiguration.getInstance().getChestId(name);
 					src.sendMessage(TextLibs.pluginMessage("set chest " + id + " for Party " + name));
-					DropConfiguration.getInstance().addChest(src, name, new BlockPos(x,y,z, worldName));
+					SetupConfiguration.getInstance().addChest(src, name, new ExtendedBlockPos(x,y,z, worldName));
 					return CommandResult.success();
 				} else {
 					if(src instanceof Player) {
 						Player player = (Player)src;
-						List<BlockPos> chests = Methods.getChest(player);
-						for(BlockPos pos : chests) {
-							DropConfiguration.getInstance().addChest(src, name, pos);
+						List<ExtendedBlockPos> chests = Methods.getChest(player);
+						for(ExtendedBlockPos pos : chests) {
+							SetupConfiguration.getInstance().addChest(src, name, pos);
 						}
 						return CommandResult.success();
 					} else {
@@ -67,7 +67,7 @@ public class DropPartyChestExecutor implements CommandExecutor {
 			}else {
 				if(args.hasAny("id")){
 					int id = args.<Integer>getOne("id").get();
-					DropConfiguration.getInstance().removeChest(src, name, id);
+					SetupConfiguration.getInstance().removeChest(src, name, id);
 				}	
 			}
 		}

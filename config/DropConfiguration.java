@@ -5,16 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.item.ItemType;
 
-import com.github.elrol.dropparty.Main;
-import com.github.elrol.dropparty.libs.BlockPos;
 import com.github.elrol.dropparty.libs.TextLibs;
+import com.google.common.reflect.TypeToken;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class DropConfiguration {
 
@@ -63,168 +62,131 @@ public class DropConfiguration {
 		}
 	}
 	
-	public void createParty(String name, String playerName) {
-		loadConfig();
-		config.getNode(name);
-		config.getNode(name, "creator").setValue(playerName);
-		config.getNode(name, "settings", "chests");
-		config.getNode(name, "settings", "drops");
-		saveConfig();
-	}
-	
-	public void removeParty(String name) {
-		config.getNode(name).setValue(null);
-		saveConfig();
-	}
-	
-	public void addChest(CommandSource src, String name, BlockPos pos) {
-		int id = getChestId(name);
-		if(doesChestExist(name, id, pos)) {
-			src.sendMessage(TextLibs.pluginError("Duplicate chest located at: X:" + pos.getX() + ", Y:" + pos.getY() + ", Z:" + pos.getZ() + "(" + pos.getDim() + ")"));
-		}else {
-			if(Sponge.getServer().getWorld(pos.getDim()).get().getBlock(pos.getX(), pos.getY(), pos.getZ()).getType().equals(BlockTypes.CHEST) ) {
-				config.getNode(name, "settings", "chests", id, "x").setValue(pos.getX());
-				config.getNode(name, "settings", "chests", id, "y").setValue(pos.getY());
-				config.getNode(name, "settings", "chests", id, "z").setValue(pos.getZ());
-				config.getNode(name, "settings", "chests", id, "dim").setValue(pos.getDim());
-				saveConfig();	
-				src.sendMessage(TextLibs.pluginMessage("set chest " + id + " for Party " + name));
-			} else {
-				src.sendMessage(TextLibs.pluginError("No chest found at that location."));
-			}
-		}
-	}
-	
-	public void removeChest(CommandSource src, String name, int id) {
-		if(doesChestExist(name, id)) {
-			config.getNode(name, "settings",  "chests", id).setValue(null);
-			src.sendMessage(TextLibs.pluginMessage("Chest " + id + " from: " + name + " was removed"));
+	public void createDropList(CommandSource src, String name, String playername) {
+		if(!doesDropListExist(name)) {
+			loadConfig();
+			config.getNode("DropLists", name, "creator").setValue(playername);
 			saveConfig();
-			return;
+			TextLibs.sendMessage(src, "Created the '" + name + "' Drop List");
 		} else {
-			src.sendMessage(TextLibs.pluginError("Chest " + id + " from: " + name + " was not found, could not remove"));
-			return;
+			TextLibs.sendError(src, "The DropList '" + name +"' already exists");
 		}
 	}
 	
-	public void addDrop(CommandSource src, String name, BlockPos pos) {
-		int id = getDropId(name);
-		if(doesDropExist(name, id, pos)) {
-			src.sendMessage(TextLibs.pluginError("Duplicate drop located at: X:" + pos.getX() + ", Y:" + pos.getY() + ", Z:" + pos.getZ() + "(" + pos.getDim() + ")"));
-		}else {
-			if(Sponge.getServer().getWorld(pos.getDim()).get().getBlock(pos.getX(), pos.getY(), pos.getZ()).getType().equals(BlockTypes.AIR) ) {
-				config.getNode(name, "settings", "drops", id, "x").setValue(pos.getX());
-				config.getNode(name, "settings", "drops", id, "y").setValue(pos.getY());
-				config.getNode(name, "settings", "drops", id, "z").setValue(pos.getZ());
-				config.getNode(name, "settings", "drops", id, "dim").setValue(pos.getDim());
-				saveConfig();	
-				src.sendMessage(TextLibs.pluginMessage("set drop " + id + " for Party " + name));
-			} else {
-				src.sendMessage(TextLibs.pluginError("Location is blocked, remove block and try again."));
-			}
-		}
-	}
-	
-	public void removeDrop(CommandSource src, String name, int id) {
-		if(doesDropExist(name, id)) {
-			config.getNode(name, "settings", "drops", id).setValue(null);
-			src.sendMessage(TextLibs.pluginMessage("Drop " + id + " from: " + name + " was removed"));
+	public void removeDropList(CommandSource src, String name) {
+		if(doesDropListExist(name)) {
+			loadConfig();
+			config.getNode("DropLists", name).setValue(null);
 			saveConfig();
-			return;
+			TextLibs.sendMessage(src, "The DropList '" + name + "' was removed");
 		} else {
-			src.sendMessage(TextLibs.pluginError("Drop " + id + " from: " + name + " was not found, could not remove"));
-			return;
+			TextLibs.sendError(src, "The DropList '" + name + "' already exists");
 		}
 	}
 	
-	public int getChestId(String name) {
-		List<? extends CommentedConfigurationNode> chests = config.getNode(name, "settings", "chests").getChildrenList();
-		if(chests.isEmpty())
-			return 0;
-		return chests.size();
-	}
-	
-	public int getDropId(String name) {
-		List<? extends CommentedConfigurationNode> drops = config.getNode(name, "settings", "drops").getChildrenList();
-		if(drops.isEmpty())
-			return 0;
-		return drops.size();
-	}
-	
-	public boolean doesPartyExist(String name) {
-		return config.getNode(name, "creator").getString() != null;
-	}
-	
-	public List<BlockPos> getChests(String name){
+	public boolean doesDropListExist(String name) {
 		loadConfig();
-		int chestQty = config.getNode(name, "settings", "chests").getChildrenList().size();
-		List<BlockPos> chests = new ArrayList<BlockPos>();
-		for(int id = 0; id < chestQty; id++) {
-			try {
-				int x = config.getNode(name, "settings", "chests", id, "x").getInt();
-				int y = config.getNode(name, "settings", "chests", id, "y").getInt();
-				int z = config.getNode(name, "settings", "chests", id, "z").getInt();
-				String dim = config.getNode(name, "settings", "chests", id, "dim").getString();
-				chests.add(new BlockPos(x, y, z, dim));
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return chests;
-	}
-	
-	public boolean doesChestExist(String name, int id, BlockPos pos) {
-		for(BlockPos chest : getChests(name)) {
-			if(chest.getDim().equalsIgnoreCase(pos.getDim())) {
-				if(chest.getX() == pos.getX() && chest.getY() == pos.getY() && chest.getZ() == pos.getZ()) {
-					return true;
-				} else {
-					Main.getInstance().getLogger().debug(chest.toString() + " is not the same as " + pos.toString());
-				}
-			} else {
-			
-			}
-		}
-		return false;
-	}
-	
-	public boolean doesChestExist(String name, int id) {
-		return getChests(name).get(id) != null;
-	}
-	
-	public List<BlockPos> getDrops(String name){
-		loadConfig();
-		int dropQty = config.getNode(name, "settings", "drops").getChildrenList().size();
-		List<BlockPos> drops = new ArrayList<BlockPos>();
-		for(int id = 0; id < dropQty; id++) {
-			try {
-				int x = config.getNode(name, "settings", "drops", id, "x").getInt();
-				int y = config.getNode(name, "settings", "drops", id, "y").getInt();
-				int z = config.getNode(name, "settings", "drops", id, "z").getInt();
-				String dim = config.getNode(name, "settings", "drops", id, "dim").getString();
-				drops.add(new BlockPos(x, y, z, dim));
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return drops;
-	}
-	
-	public boolean doesDropExist(String name, int id, BlockPos pos) {
-		int max = config.getNode(name, "settings", "drops").getChildrenList().size();
-		if(id < max && !config.getNode(name, "settings", "drops", id, "y").isVirtual())
-			return true;
-		for(BlockPos dropPos:this.getDrops(name)) {
-			if(dropPos.equals(pos))
+		for(Object node : config.getChildrenMap().keySet()) {
+			if(node.equals(name));
 				return true;
 		}
 		return false;
 	}
 	
-	public boolean doesDropExist(String name, int id) {
-		int max = config.getNode(name, "settings", "drops").getChildrenList().size();
-		if(id < max && !config.getNode(name, "settings", "drops", id, "y").isVirtual())
+	public void addDropListItem(CommandSource src, String name, ItemType type) {
+		if(doesDropListExist(name)) {
+			if(!doesItemExist(name, type)) {
+				addItem(name, type);
+				TextLibs.sendMessage(src, "'" + type.getTranslation().get() + "' was added to the DropList '" + name + "'");
+			} else {
+				TextLibs.sendError(src, "'" + type.getTranslation().get() + "' is already in the DropList '" + name + "'");
+			}
+		} else {
+			TextLibs.sendError(src, "The DropList '" + name +"' doesn't exist");
+		}
+	}
+	
+	public void removeDropListItem(CommandSource src, String name, ItemType type) {
+		if(doesDropListExist(name)) {
+			if(doesItemExist(name, type)) {
+				removeItem(name, type);
+				TextLibs.sendMessage(src, "'" + type.getTranslation().get() + "' was removed from the DropList '" + name + "'");				
+			} else {
+				TextLibs.sendError(src, "'" + type.getTranslation().get() + "' is not int the DropList '" + name + "'");
+			}
+		} else {
+			TextLibs.sendError(src, "The DropList '" + name + "' doesn't exist");
+		}
+	}
+	
+	public boolean doesItemExist(String name, ItemType type) {
+		List<ItemType> items = getList(name);
+		if(items != null && items.contains(type))
 			return true;
 		return false;
+	}
+	
+	@SuppressWarnings("serial")
+	public List<ItemType> getList(String name){
+		List<ItemType> items = new ArrayList<ItemType>();
+		try {
+			loadConfig();
+			items = config.getNode("DropLists", name, "Items").getValue(new TypeToken<List<ItemType>> () {});
+		} catch (ObjectMappingException e) {
+			e.printStackTrace();
+		}
+		return items; 
+	}
+	
+	@SuppressWarnings("serial")
+	public void addItem(String name, ItemType type) {
+		loadConfig();
+		try {
+			List<ItemType> items;
+			if(getList(name) == null)
+				items = new ArrayList<ItemType>();
+			else
+				items = getList(name);
+			items.add(type);
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			saveConfig();
+		} catch (ObjectMappingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public void removeItem(String name, ItemType type) {
+		try {
+			List<ItemType> items = getList(name);
+			items.remove(type);
+			loadConfig();
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			saveConfig();
+		} catch (ObjectMappingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public void removeAll(String name) {
+		try {
+			List<ItemType> items = getList(name);
+			items.clear();
+			loadConfig();
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			saveConfig();
+		} catch (ObjectMappingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<String> getDrops() {
+		loadConfig();
+		List<String> list = new ArrayList<String>();
+		for(Object node : config.getNode("DropLists").getChildrenMap().keySet()) {
+			list.add((String)node);
+		}
+		return list;
 	}
 }

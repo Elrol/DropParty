@@ -8,8 +8,8 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 
-import com.github.elrol.dropparty.config.DropConfiguration;
-import com.github.elrol.dropparty.libs.BlockPos;
+import com.github.elrol.dropparty.config.SetupConfiguration;
+import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -20,7 +20,7 @@ public class DropPartyCreateExecutor implements CommandExecutor {
 		if(args.hasAny("name")) {
 			String name = args.<String>getOne("name").get();
 			String playerName;
-			if(DropConfiguration.getInstance().doesPartyExist(name)) {
+			if(SetupConfiguration.getInstance().doesPartyExist(name)) {
 				src.sendMessage(TextLibs.pluginError("A Party by that name already exists."));
 				return CommandResult.builder().successCount(0).build();
 			}
@@ -28,7 +28,7 @@ public class DropPartyCreateExecutor implements CommandExecutor {
 				playerName = ((Player)src).getName();
 			else
 				playerName = "Console";
-			DropConfiguration.getInstance().createParty(name, playerName);
+			SetupConfiguration.getInstance().createParty(src, name, playerName);
 			src.sendMessage(TextLibs.pluginMessage("Successfully created party: " + name));
 			if(args.hasAny("x") && args.hasAny("y") && args.hasAny("z")) {
 				int x = args.<Integer>getOne("x").get();
@@ -40,7 +40,7 @@ public class DropPartyCreateExecutor implements CommandExecutor {
 					else
 						src.sendMessage(TextLibs.pluginError("World missing, or invalid, defaulting to " + Sponge.getServer().getDefaultWorldName()));
 						world = Sponge.getServer().getDefaultWorldName();
-				DropConfiguration.getInstance().addChest(src, name, new BlockPos(x, y ,z, world));
+				SetupConfiguration.getInstance().addChest(src, name, new ExtendedBlockPos(x, y ,z, world));
 				
 			}
 		}

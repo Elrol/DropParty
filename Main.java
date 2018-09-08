@@ -15,6 +15,7 @@ import org.spongepowered.api.plugin.Plugin;
 import com.github.elrol.dropparty.commands.CommandRegistry;
 import com.github.elrol.dropparty.config.DefaultConfiguration;
 import com.github.elrol.dropparty.config.DropConfiguration;
+import com.github.elrol.dropparty.config.SetupConfiguration;
 import com.github.elrol.dropparty.config.TierConfiguration;
 import com.github.elrol.dropparty.libs.PluginInfo;
 import com.google.inject.Inject;
@@ -35,6 +36,7 @@ public class Main {
 	@DefaultConfig(sharedRoot = false)
 	private File defaultConfig;
 	private File tierConfig = new File("config/" + PluginInfo.ID + "/tiers.conf");
+	private File setupConfig = new File("config/" + PluginInfo.ID + "/setups.conf");
 	private File dropConfig = new File("config/" + PluginInfo.ID + "/drops.conf");
 	
 	
@@ -42,6 +44,7 @@ public class Main {
 	@DefaultConfig(sharedRoot = false)
 	private ConfigurationLoader<CommentedConfigurationNode> configManager;
 	private ConfigurationLoader<CommentedConfigurationNode> tierManager = HoconConfigurationLoader.builder().setFile(tierConfig).build();
+	private ConfigurationLoader<CommentedConfigurationNode> setupManager = HoconConfigurationLoader.builder().setFile(setupConfig).build();
 	private ConfigurationLoader<CommentedConfigurationNode> dropManager = HoconConfigurationLoader.builder().setFile(dropConfig).build();
 	
 	@Listener
@@ -64,6 +67,7 @@ public class Main {
 		logger.info("Registering Configs");
 		DefaultConfiguration.getInstance().setup(defaultConfig, configManager);
 		TierConfiguration.getInstance().setup(tierConfig, tierManager);
+		SetupConfiguration.getInstance().setup(setupConfig, setupManager);
 		DropConfiguration.getInstance().setup(dropConfig, dropManager);
 		
 		CommandRegistry.setup(this);
