@@ -8,8 +8,11 @@ import java.util.Map;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
+import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
@@ -70,4 +73,25 @@ public class Methods {
 		 return partyNames;
 	}
 	
+	public static void broadcastTitle(Title title) {
+		for (Player p : Sponge.getServer().getOnlinePlayers()) {
+			p.sendTitle(title);
+		}
+	}
+
+	public static void broadcastBossBar(ServerBossBar bar) {
+		for (Player p : Sponge.getServer().getOnlinePlayers()) {
+			bar.addPlayer(p);
+		}
+	}
+	
+	public static TileEntityCarrier getCarrier(ExtendedBlockPos pos) {
+		World world = Sponge.getServer().getWorld(pos.getDim()).get();
+		if(!world.getBlock(pos.getX(), pos.getY(), pos.getZ()).getType().equals(BlockTypes.CHEST)) {
+			TextLibs.pluginError("Chest at X:" + pos.getX() + " Y:" + pos.getY() + " Z:" + pos.getZ() + " is not found, skipping it.");
+			return null;
+		}
+		return (TileEntityCarrier)world.getTileEntity(pos.getX(), pos.getY(), pos.getZ()).get();
+		
+	}
 }

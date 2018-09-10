@@ -32,6 +32,8 @@ public class PluginInfo {
 		public static final String dropPartyDropListClear = "dropparty.command.droplist.clear";
 		public static final String dropPartyDropListAddAll = "dropparty.command.droplist.addall";
 		public static final String dropPartyDropListCreate = "dropparty.command.droplist.create";
+		public static final String dropPartyStart = "dropparty.command.start";
+		public static final String dropPartyStop = "dropparty.command.stop";
 		
 	}
 	
@@ -58,5 +60,7 @@ public class PluginInfo {
 		public static final Text dropPartyDropListClear = Text.of("Removes all Items from the specified DropList");
 		public static final Text dropPartyDropListAddAll = Text.of("Adds all Items from all chests in a DropParty Setup");
 		public static final Text dropPartyDropListCreate = Text.of("Creates a new DropList");
+		public static final Text dropPartyStart = Text.of("Starts the specified DropParty");
+		public static final Text dropPartyStop = Text.of("Stops the specified DropParty");
 	}
 }

@@ -17,9 +17,11 @@ import com.github.elrol.dropparty.config.DefaultConfiguration;
 import com.github.elrol.dropparty.config.DropConfiguration;
 import com.github.elrol.dropparty.config.SetupConfiguration;
 import com.github.elrol.dropparty.config.TierConfiguration;
+import com.github.elrol.dropparty.events.EventManager;
 import com.github.elrol.dropparty.libs.PluginInfo;
 import com.google.inject.Inject;
 
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -28,6 +30,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 public class Main {
 
 	private static Main instance;
+	public EventBus EVENT_BUS = new EventBus();
 	
 	@Inject
 	private Logger logger;
@@ -47,9 +50,12 @@ public class Main {
 	private ConfigurationLoader<CommentedConfigurationNode> setupManager = HoconConfigurationLoader.builder().setFile(setupConfig).build();
 	private ConfigurationLoader<CommentedConfigurationNode> dropManager = HoconConfigurationLoader.builder().setFile(dropConfig).build();
 	
+	private EventManager eventManager;
+	
 	@Listener
 	public void onServerStart(GameStartedServerEvent event) {
 		logger.info("Started DropParty");
+		eventManager = new EventManager();
 	}
 	
 	@Listener
@@ -84,5 +90,9 @@ public class Main {
 	
 	public Logger getLogger() {
 		return logger;
+	}
+	
+	public EventManager getEventManager() {
+		return eventManager;
 	}
 }

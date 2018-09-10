@@ -13,6 +13,23 @@ import com.github.elrol.dropparty.libs.PluginInfo.Permissions;
 public class CommandRegistry {
 
 	public static void setup(Main main) {
+		//DropParty start [name]
+		CommandSpec dropPartyStart = CommandSpec.builder()
+				.description(Descriptions.dropPartyStart)
+				.permission(Permissions.dropPartyStart)
+				.arguments(
+						DropPartyArguments.partyName(Text.of("name")),
+						GenericArguments.optional(GenericArguments.integer(Text.of("delay"))),
+						GenericArguments.optional(GenericArguments.integer(Text.of("persec"))))
+				.executor(new DropPartyStartExecutor())
+				.build();
+		//DropParty stop [name]
+		CommandSpec dropPartyStop = CommandSpec.builder()
+				.description(Descriptions.dropPartyStop)
+				.permission(Permissions.dropPartyStop)
+				.executor(new DropPartyStopExecutor())
+				.build();
+		
 		//DropParty droplist create [name]
 		CommandSpec dropPartyDropListCreate = CommandSpec.builder()
 				.description(Descriptions.dropPartyDropListCreate)
@@ -233,6 +250,8 @@ public class CommandRegistry {
 			    .child(dropPartyTP, "teleport", "tp")
 			    .child(dropPartyClear, "clear")
 			    .child(dropPartyDropList, "droplist")
+			    .child(dropPartyStart, "start")
+			    .child(dropPartyStop, "stop")
 			    .executor(new DropPartyExecutor())
 			    .build();
 

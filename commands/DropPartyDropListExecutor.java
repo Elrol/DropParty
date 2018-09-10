@@ -40,9 +40,13 @@ public class DropPartyDropListExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
 				List<ItemType> items = DropConfiguration.getInstance().getList(name);
-				TextLibs.sendMessage(src, "Current Items in the '" + name + "' DropList:");
-				for(ItemType item : items) {
-					TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + item.getTranslation().get()));
+				if(items != null) {
+					TextLibs.sendMessage(src, "Current Items in the '" + name + "' DropList:");
+					for(ItemType item : items) {
+						TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + item.getTranslation().get()));
+					}
+				} else {
+					TextLibs.sendError(src, "The DropList '" + name + "' has not been created yet.");
 				}
 				return CommandResult.success();
 			} else if(mode == 1) {

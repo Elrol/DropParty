@@ -23,10 +23,10 @@ public class DefaultConfiguration {
 			try {
 				configFile.createNewFile();
 				loadConfig();
-				config.getNode("DropParty", "Tier Drops").setComment("All values must be integers and total 100");
-				config.getNode("DropParty", "Tier Drops", "Tier 0").setValue(42);
+				config.getNode("DropParty", "Tier Drops").setComment("All values must be integers");
+				config.getNode("DropParty", "Tier Drops", "Tier 0").setValue(50);
 				config.getNode("DropParty", "Tier Drops", "Tier 1").setValue(25);
-				config.getNode("DropParty", "Tier Drops", "Tier 2").setValue(17);
+				config.getNode("DropParty", "Tier Drops", "Tier 2").setValue(15);
 				config.getNode("DropParty", "Tier Drops", "Tier 3").setValue(10);
 				config.getNode("DropParty", "Tier Drops", "Tier 4").setValue(5);
 				config.getNode("DropParty", "Tier Drops", "Tier 5").setValue(1);
@@ -58,6 +58,36 @@ public class DefaultConfiguration {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getTierChance(int tier) {
+		return config.getNode("DropParty", "Tier Drops", "Tier " + tier).getInt();
+	}
+	
+	public int getTotalChance() {
+		int total = 0;
+		for(int i = 0; i < 5; i++) {
+			total += getTierChance(i);
+		}
+		return total;
+	}
+	
+	public int getTierRange(int tier) {
+		int range = 0;
+		for(int i = tier; i > 0; i--) {
+			range += getTierChance(i);
+		}
+		return range;
+	}
+	public int[] getRange() {
+		return new int[] {
+				getTierRange(0),
+				getTierRange(1),
+				getTierRange(2),
+				getTierRange(3),
+				getTierRange(4),
+				getTierRange(5)
+		};
 	}
 	
 }

@@ -4,14 +4,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.Item;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.World;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.github.elrol.dropparty.Main;
 import com.github.elrol.dropparty.libs.ExtendedBlockPos;
+import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -270,5 +280,28 @@ public class SetupConfiguration {
 			list.add((String)node);
 		}
 		return list;
+	}
+	
+	public void spawnItemAtDrop(String name, ItemType item) {
+		Main.getInstance().getLogger().debug("attempting to spawn item");
+		List<ExtendedBlockPos> drops = getDrops(name);
+		Random rand = new Random();
+		ExtendedBlockPos pos = drops.get(rand.nextInt(drops.size()));
+		World world = Sponge.getServer().getWorld(pos.getDim()).get();
+		ItemStack itemStack = ItemStack.builder().itemType(item).quantity(1).build();
+		
+		Entity itemEntity = world.createEntity( EntityTypes.ITEM, new Vector3d(pos.getX(), pos.getY(), pos.getZ()) );
+        Item items = (Item) itemEntity;
+        items.offer( Keys.REPRESENTED_ITEM, itemStack.createSnapshot() );
+        world.spawnEntity(items);
+	}
+	
+	public int getDuration(String name, int itemsPerSec) {
+		List<ExtendedBlockPos> chests = getChests(name);
+		int totalItems = 0;
+		for(ExtendedBlockPos chest: chests) {
+			totalItems += Methods.getCarrier(chest).getInventory().totalItems();
+		}
+		return Math.round((float)totalItems / (float)itemsPerSec);
 	}
 }
