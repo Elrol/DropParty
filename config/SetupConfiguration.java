@@ -13,7 +13,6 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
@@ -282,13 +281,13 @@ public class SetupConfiguration {
 		return list;
 	}
 	
-	public void spawnItemAtDrop(String name, ItemType item) {
+	public void spawnItemAtDrop(String name, ItemStack item) {
 		Main.getInstance().getLogger().debug("attempting to spawn item");
 		List<ExtendedBlockPos> drops = getDrops(name);
 		Random rand = new Random();
 		ExtendedBlockPos pos = drops.get(rand.nextInt(drops.size()));
 		World world = Sponge.getServer().getWorld(pos.getDim()).get();
-		ItemStack itemStack = ItemStack.builder().itemType(item).quantity(1).build();
+		ItemStack itemStack = item;
 		
 		Entity itemEntity = world.createEntity( EntityTypes.ITEM, new Vector3d(pos.getX(), pos.getY(), pos.getZ()) );
         Item items = (Item) itemEntity;

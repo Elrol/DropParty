@@ -62,7 +62,8 @@ public class DropPartyRunnable implements Runnable{
 						    continue;
 						  }
 						  ItemStack stack = opStack.get();
-						  if(TierConfiguration.getInstance().getTier(tier).contains(stack.getType())) {
+						  if(TierConfiguration.getInstance().getTier(tier).contains(stack)) {
+							  System.out.println("Adding Item: " + stack.getType().getTranslation().get() + "to the list");
 							  itemLocation.put(chest, slotId);
 						  }
 						  slotId += 1;
@@ -81,10 +82,11 @@ public class DropPartyRunnable implements Runnable{
 			Iterable<Inventory> finalChest = Methods.getCarrier(chestLocation).getInventory().slots();
 			int slot = 0;
 			for(Inventory slotInv : finalChest) {
+				System.out.println("Attempting to spawn Item");
 				if(slot < slotId)
 					continue;
 				ItemStack stack = slotInv.peek().get();
-				SetupConfiguration.getInstance().spawnItemAtDrop(name, stack.getType());
+				SetupConfiguration.getInstance().spawnItemAtDrop(name, stack);
 				if(stack.getQuantity() > 1)
 					stack.setQuantity(stack.getQuantity() - 1);
 				else

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
@@ -11,11 +12,17 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
 import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.data.key.Key;
+import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
+import com.github.elrol.dropparty.config.TierConfiguration;
 
 public class Methods {
 	
@@ -93,5 +100,51 @@ public class Methods {
 		}
 		return (TileEntityCarrier)world.getTileEntity(pos.getX(), pos.getY(), pos.getZ()).get();
 		
+	}
+	
+	public static boolean doesPartyHaveItems(String name) {
+		List<ExtendedBlockPos> chests = SetupConfiguration.getInstance().getChests(name);
+		for(ExtendedBlockPos chest : chests) {
+			for(Inventory slot : Methods.getCarrier(chest).getInventory().slots()){
+				if(slot.size() == 1)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static List<ItemStack> getListFromTier(Inventory chests, int tier){
+		List<ItemStack> validOptions = new ArrayList<ItemStack>();
+		for(Inventory slot : chests.slots()) {
+			Optional<ItemStack> opStack = slot.peek();
+			  if(!opStack.isPresent())
+			    continue;
+			  List<ItemStack> yourlist = TierConfiguration.getInstance().getTier(tier);
+			  ItemStack stack = opStack.get();
+			  ItemStackSnapshot asSnapshot = stack.createSnapshot();
+			  if(!yourlist.stream().anyMatch(j -> compare(j.createSnapshot(), asSnapshot))){
+			    continue;
+			  }
+			  validOptions.add(stack);
+		}
+		return validOptions;
+	}
+	
+	private static boolean compare(ItemStackSnapshot ori, ItemStackSnapshot stack){
+		for(Key<? extends BaseValue<? extends Object>> key : ori.getKeys()){
+		    Optional<? extends Object> opOriValue = ori.get(key);
+		    if(!opOriValue.isPresent()){
+		        continue;
+		    }
+		    Optional<? extends Object> opStackValue = stack.get(key);
+		    if(!opStackValue.isPresent()) {
+		        return false;
+		    }
+		    if(opStackValue.get().equals(opOriValue.get())) {
+		      continue;
+		    }
+		   return false;
+		 }
+		return true;
 	}
 }

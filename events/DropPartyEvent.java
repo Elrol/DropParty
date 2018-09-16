@@ -2,6 +2,7 @@ package com.github.elrol.dropparty.events;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.Sponge;
@@ -16,6 +17,8 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShapes;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
@@ -23,7 +26,9 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.title.Title;
 
 import com.github.elrol.dropparty.Main;
+import com.github.elrol.dropparty.config.DefaultConfiguration;
 import com.github.elrol.dropparty.config.SetupConfiguration;
+import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -39,6 +44,7 @@ public class DropPartyEvent {
 	private int timeLeft;
 	protected int duration;
 	private Countdown cd;
+	private Random rand = new Random();
 
     private ServerBossBar bar;
 	
@@ -56,7 +62,7 @@ public class DropPartyEvent {
 		
 		
 		//Main.getInstance().EVENT_BUS.register(this);
-		cd = new Countdown(() -> endEvent(), duration * 60, bar, null, Main.getInstance());
+		cd = new Countdown(() -> endEvent(), duration, bar, null, Main.getInstance());
 		
 		Methods.broadcastTitle(dropPartyAnnouncement);
 		Sponge.getServer().getBroadcastChannel().send(Text.of(TextLibs.pluginHeader(), TextColors.GREEN, "DropParty '" + name + "' has started!"));
@@ -72,9 +78,60 @@ public class DropPartyEvent {
  			}
 		}).delay(5, TimeUnit.MINUTES).interval(2, TimeUnit.MINUTES).submit(Main.getInstance());
 		
-		dropParty = Sponge.getScheduler().createTaskBuilder().execute(() -> 
-			new DropPartyRunnable(name, itemsPerSec)).submit(Main.getInstance());
-		
+		TextLibs.sendConsoleMessage("Starting the party");
+		dropParty = Sponge.getScheduler().createTaskBuilder().execute(() -> {
+			for(int i = 0; i < itemsPerSec; i++) {
+				System.out.println("#" + i + " in a second");
+				TextLibs.sendConsoleMessage("trying to drop item");
+				int tier = 0;
+				int range = rand.nextInt(DefaultConfiguration.getInstance().getTotalChance());
+				Inventory chests = null;
+				for(int j = 5; j > 0; j--) {
+					if(DefaultConfiguration.getInstance().getRange()[j] >= range 
+							&& (j != 0 ? DefaultConfiguration.getInstance().getRange()[j-1] < range : true)) {
+						tier = j;
+						System.out.println("Tier " + tier + " range is " + range);
+						break;
+					}
+				}
+				for(ExtendedBlockPos pos : SetupConfiguration.getInstance().getChests(name)){
+					Inventory chest = Methods.getCarrier(pos).getInventory();
+					if(chests == null) {
+						chests = chest;
+					} else {
+						chests.union(chest);
+					}
+				}
+				List<ItemStack> validOptions = new ArrayList<ItemStack>();
+				while(validOptions.isEmpty()) {
+					validOptions = Methods.getListFromTier(chests, tier);
+					if(validOptions.isEmpty() && tier > 0) {
+						System.out.println("Tier " + tier + " Items not found, trying Tier " + (tier -1));
+						tier--;
+					} else if (validOptions.isEmpty() && tier == 0) {
+						for(int k = 1; k < 5; k++) {
+							if(!Methods.getListFromTier(chests, k).isEmpty()) {
+								validOptions = Methods.getListFromTier(chests, k);
+								break;
+							}
+							if(k == 5 && Methods.getListFromTier(chests, k).isEmpty()) {
+								System.out.print("Chests are empty, ending party");
+								endEvent();
+							}
+						}
+					}
+				}
+				ItemStack randomStack = validOptions.get(rand.nextInt(validOptions.size()-1));
+				for(Inventory slot : chests.slots()) {
+					if(slot.contains(randomStack)) {
+						SetupConfiguration.getInstance().spawnItemAtDrop(name, slot.poll(1).get());
+						System.out.println("Dropping item at drop");
+					}
+				}
+			}
+		}
+			).interval(1, TimeUnit.SECONDS).submit(Main.getInstance());
+		//new DropPartyRunnable(name, itemsPerSec)
 		Main.getInstance().getLogger().info("Starting DropParty '" + name + "'");
 	}
 	
@@ -144,5 +201,4 @@ public class DropPartyEvent {
 		
 		return dropPartyTask;
 	}
-	
 }

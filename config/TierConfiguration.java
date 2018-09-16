@@ -8,6 +8,8 @@ import java.util.List;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackComparators;
 
 import com.github.elrol.dropparty.libs.TextLibs;
 import com.google.common.reflect.TypeToken;
@@ -22,11 +24,11 @@ public class TierConfiguration {
 	
 	private ConfigurationLoader<CommentedConfigurationNode> loader;
 	private CommentedConfigurationNode config;
-	private List<ItemType> tier1Items = new ArrayList<ItemType>();
-	private List<ItemType> tier2Items = new ArrayList<ItemType>();
-	private List<ItemType> tier3Items = new ArrayList<ItemType>();
-	private List<ItemType> tier4Items = new ArrayList<ItemType>();
-	private List<ItemType> tier5Items = new ArrayList<ItemType>();
+	private List<ItemStack> tier1Items = new ArrayList<ItemStack>();
+	private List<ItemStack> tier2Items = new ArrayList<ItemStack>();
+	private List<ItemStack> tier3Items = new ArrayList<ItemStack>();
+	private List<ItemStack> tier4Items = new ArrayList<ItemStack>();
+	private List<ItemStack> tier5Items = new ArrayList<ItemStack>();
 	
 	
 	public static TierConfiguration getInstance() {
@@ -42,11 +44,11 @@ public class TierConfiguration {
 				configFile.createNewFile();
 				loadConfig();
 				try {
-					config.getNode("Tier 1").setComment("A list of Items that are Uncommon").setValue(new TypeToken<List<ItemType>>() {}, tier1Items);
-					config.getNode("Tier 2").setComment("A list of Items that are Rare").setValue(new TypeToken<List<ItemType>>() {}, tier2Items);
-					config.getNode("Tier 3").setComment("A list of Items that are Epic").setValue(new TypeToken<List<ItemType>>() {}, tier3Items);
-					config.getNode("Tier 4").setComment("A list of Items that are Legendary").setValue(new TypeToken<List<ItemType>>() {}, tier4Items);
-					config.getNode("Tier 5").setComment("A list of Items that are Mythic").setValue(new TypeToken<List<ItemType>>() {}, tier5Items);
+					config.getNode("Tier 1").setComment("A list of Items that are Uncommon").setValue(new TypeToken<List<ItemStack>>() {}, tier1Items);
+					config.getNode("Tier 2").setComment("A list of Items that are Rare").setValue(new TypeToken<List<ItemStack>>() {}, tier2Items);
+					config.getNode("Tier 3").setComment("A list of Items that are Epic").setValue(new TypeToken<List<ItemStack>>() {}, tier3Items);
+					config.getNode("Tier 4").setComment("A list of Items that are Legendary").setValue(new TypeToken<List<ItemStack>>() {}, tier4Items);
+					config.getNode("Tier 5").setComment("A list of Items that are Mythic").setValue(new TypeToken<List<ItemStack>>() {}, tier5Items);
 				} catch(ObjectMappingException e) {}
 				saveConfig();
 			} catch (IOException e) {
@@ -79,21 +81,21 @@ public class TierConfiguration {
 	}
 	
 	private void loadDefaults() {
-		tier1Items.add(ItemTypes.IRON_INGOT);
-		tier2Items.add(ItemTypes.GOLD_INGOT);
-		tier3Items.add(ItemTypes.DIAMOND);
-		tier4Items.add(ItemTypes.EMERALD);
-		tier5Items.add(ItemTypes.NETHER_STAR);
+		tier1Items.add(ItemStack.builder().itemType(ItemTypes.IRON_INGOT).quantity(1).build());
+		tier2Items.add(ItemStack.builder().itemType(ItemTypes.GOLD_INGOT).quantity(1).build());
+		tier3Items.add(ItemStack.builder().itemType(ItemTypes.DIAMOND).quantity(1).build());
+		tier4Items.add(ItemStack.builder().itemType(ItemTypes.EMERALD).quantity(1).build());
+		tier5Items.add(ItemStack.builder().itemType(ItemTypes.NETHER_STAR).quantity(1).build());
 	}
 	
 	@SuppressWarnings("serial")
-	public void addItem(CommandSource src, int tier, ItemType type) {
+	public void addItem(CommandSource src, int tier, ItemStack type) {
 		loadConfig();
 		try {
-			List<ItemType> items = getTier(tier);
+			List<ItemStack> items = getTier(tier);
 			if(!isItemListed(type)) {
 				items.add(type);
-				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
+				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
 				saveConfig();
 				TextLibs.sendMessage(src, "Successfully added '" + type.getTranslation().get() + "' to 'Tier " + tier + "'");
 				return;
@@ -104,7 +106,7 @@ public class TierConfiguration {
 		}
 	}
 	
-	public boolean isItemListed(ItemType type) throws ObjectMappingException {
+	public boolean isItemListed(ItemStack type) throws ObjectMappingException {
 		for(int i = 1; i < 5; i++) {
 			if(isItemListed(i, type))
 				return true;
@@ -112,20 +114,32 @@ public class TierConfiguration {
 		return false;
 	}
 	
-	public boolean isItemListed(int tier, ItemType type) {
+	public boolean isItemListed(int tier, ItemStack type) {
 		loadConfig();
-		List<ItemType> items = getTier(tier);
-		if(items.contains(type)) {
+		if(tier == 0) {
+			for(int i = 1; i < 5; i++) {
+				for(ItemStack stack : getTier(i)) {
+					if(stack.getType().equals(type.getType()) 
+							&& ItemStackComparators.ITEM_DATA.compare(type, stack) == 0)
+					System.out.println(type.getTranslation().get() + " found in Tier " + tier);
+					return false;
+				}
+			}
+			System.out.println(type.getTranslation().get() + " not found in Tier " + tier);
+			return true;
+		}
+		List<ItemStack> items = getTier(tier);
+		if(items != null && !items.isEmpty() && items.contains(type)) {
 			return true;
 		}
 		return false;
 	}
 	
 	@SuppressWarnings("serial")
-	public List<ItemType> getTier(int tier){
+	public List<ItemStack> getTier(int tier){
 		loadConfig();
 		try {
-			return config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemType>>() {});
+			return config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemStack>>() {});
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
 		}
@@ -133,13 +147,13 @@ public class TierConfiguration {
 	}
 
 	@SuppressWarnings("serial")
-	public void removeItem(CommandSource src, int tier, ItemType item) {
+	public void removeItem(CommandSource src, int tier, ItemStack item) {
 		loadConfig();
-		List<ItemType> items = getTier(tier);
+		List<ItemStack> items = getTier(tier);
 		if(items.contains(item)) {
 			items.remove(item);
 			try {
-				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
+				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
 				TextLibs.sendMessage(src, "'" + item.getTranslation().get() + "' was removed from 'Tier " + tier + "'");
 				saveConfig();
 			} catch (ObjectMappingException e) {
