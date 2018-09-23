@@ -38,9 +38,9 @@ public class Main {
 	@Inject
 	@DefaultConfig(sharedRoot = false)
 	private File defaultConfig;
-	private File tierConfig = new File("config/" + PluginInfo.ID + "/tiers.conf");
-	private File setupConfig = new File("config/" + PluginInfo.ID + "/setups.conf");
-	private File dropConfig = new File("config/" + PluginInfo.ID + "/drops.conf");
+	private File tierConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/tiers.conf");
+	private File setupConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/setups.conf");
+	private File dropConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/drops.conf");
 	
 	
 	@Inject

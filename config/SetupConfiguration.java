@@ -15,6 +15,7 @@ import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
 import com.flowpowered.math.vector.Vector3d;
@@ -139,8 +140,13 @@ public class SetupConfiguration {
 	public void addDrop(CommandSource src, String name, ExtendedBlockPos pos) {
 		if(doesPartyExist(name)) {
 			int id = getDropId(name);
+			if(id >= 5){
+				TextLibs.sendError(src, "Cannot have more then 5 drops per party.");
+				return;
+			}
 			if(doesDropExist(name, id, pos)) {
 				TextLibs.sendError(src, "Duplicate drop located at: X:" + pos.getX() + ", Y:" + pos.getY() + ", Z:" + pos.getZ() + "(" + pos.getDim() + ")");
+				return;
 			}else {
 				if(Sponge.getServer().getWorld(pos.getDim()).get().getBlock(pos.getX(), pos.getY(), pos.getZ()).getType().equals(BlockTypes.AIR) ) {
 					config.getNode("DropParties", name, "settings", "drops", id, "x").setValue(pos.getX());
@@ -149,12 +155,15 @@ public class SetupConfiguration {
 					config.getNode("DropParties", name, "settings", "drops", id, "dim").setValue(pos.getDim());
 					saveConfig();	
 					TextLibs.sendMessage(src, "set drop '" + id + "' for Party '" + name + "'");
+					return;
 				} else {
 					TextLibs.sendError(src, "Location is blocked, remove block and try again.");
+					return;
 				}
 			}
 		} else {
 			TextLibs.sendError(src, "The DropParty Setup '" + name + "' does not exist");
+			return;
 		}
 	}
 	
@@ -269,6 +278,28 @@ public class SetupConfiguration {
 		loadConfig();
 		for(Object node : config.getNode("DropParties").getChildrenMap().keySet()) {
 			TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + node));
+			TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + "Chests{"));
+			if(getChests((String)node).isEmpty())
+				TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + TextLibs.tab, TextColors.RED, "No Chests Set"));
+			else {
+				int i = 0;
+				for(ExtendedBlockPos chest : getChests((String)node)) {
+					TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + TextLibs.tab + "[" + i + "] { Dim: " + chest.getDim() + " X: " + chest.getX() + " Y: " + chest.getY() + " Z: " + chest.getZ() + " }"));
+					i++;
+				}
+			}
+			TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + "}"));
+			TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + "Drops{"));
+			if(getDrops((String)node).isEmpty())
+				TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + TextLibs.tab, TextColors.RED, "No Drops Set"));
+			else {
+				int i = 0;
+				for(ExtendedBlockPos drop : getDrops((String)node)) {
+					TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + TextLibs.tab + "[" + i + "] { Dim: " + drop.getDim() + " X: " + drop.getX() + " Y: " + drop.getY() + " Z: " + drop.getZ() + " }"));
+					i++;
+				}
+			}
+			TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + TextLibs.tab + "}"));
 		}
 	}
 	
@@ -295,12 +326,12 @@ public class SetupConfiguration {
         world.spawnEntity(items);
 	}
 	
-	public int getDuration(String name, int itemsPerSec) {
+	public int getPartyItemQty(String name) {
 		List<ExtendedBlockPos> chests = getChests(name);
 		int totalItems = 0;
 		for(ExtendedBlockPos chest: chests) {
 			totalItems += Methods.getCarrier(chest).getInventory().totalItems();
 		}
-		return Math.round((float)totalItems / (float)itemsPerSec);
+		return totalItems;
 	}
 }

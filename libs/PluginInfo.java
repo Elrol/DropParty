@@ -6,7 +6,7 @@ public class PluginInfo {
 
 	public static final String NAME = "DropParty";
 	public static final String ID = "dropparty";
-	public static final String VERSION = "Alpha v0.5";
+	public static final String VERSION = "Alpha v0.6";
 	public static final String DESC = "A Drop Party plugin commissioned by the PokeFreaks network";
 	
 	//Permissions
@@ -34,12 +34,13 @@ public class PluginInfo {
 		public static final String dropPartyDropListCreate = "dropparty.command.droplist.create";
 		public static final String dropPartyStart = "dropparty.command.start";
 		public static final String dropPartyStop = "dropparty.command.stop";
+		public static final String dropPartyHelp = "dropparty.command.help";
 		
 	}
 	
 	//Descriptions
 	public static class Descriptions{
-		public static final Text dropParty = Text.of("The Drop Party help command");
+		public static final Text dropParty = Text.of("Lists current DropParty setups");
 		public static final Text dropPartyCreate = Text.of("Drop Party Create help command");
 		public static final Text dropPartyChest = Text.of("Drop Party Chest help command");
 		public static final Text dropPartyChestAdd = Text.of("Adds a chest to the specified Party setup");
@@ -62,5 +63,6 @@ public class PluginInfo {
 		public static final Text dropPartyDropListCreate = Text.of("Creates a new DropList");
 		public static final Text dropPartyStart = Text.of("Starts the specified DropParty");
 		public static final Text dropPartyStop = Text.of("Stops the specified DropParty");
+		public static final Text dropPartyHelp = Text.of("Displays the help message for DropParty");
 	}
 }

@@ -20,21 +20,18 @@ public class EventManager {
 	
 	private String partyName;
 	
-	private ServerBossBar nextEventBar = ServerBossBar.builder().color(BossBarColors.BLUE)
-			.name(Text.of(TextColors.BLUE, "DropParty starting at " + partyName)).overlay(BossBarOverlays.PROGRESS).build();
-	
 	public EventManager() {
 		this.isRunning = false;
 	}
 	
-	public void startParty(String name, int itemsPerSec) {
+	public void startParty(String name, int itemsPerSec, boolean isAdmin) {
 		if(isRunning) {
 			TextLibs.sendConsoleMessage("A DropParty is already running, please wait until it has finished");
 			return;
 		}
 		partyName = name;
-		if(Sponge.getServer().getOnlinePlayers().size() > 0) {
-			currentEvent = new DropPartyEvent(partyName, itemsPerSec);
+		if(Sponge.getServer().getOnlinePlayers().size() >= 0) {
+			currentEvent = new DropPartyEvent(partyName, itemsPerSec, isAdmin);
 		}
 	}
 	
@@ -42,8 +39,13 @@ public class EventManager {
 		return currentEvent;
 	}
 	
-	public void scheduleEvent(String name, Title title, int delay, int itemsPerSec) {
-		scheduledEvent = new Countdown(() -> startParty(name, itemsPerSec), delay * 60, nextEventBar, title, Main.getInstance());
+	protected ServerBossBar nextEventBar(String name){
+		return ServerBossBar.builder().color(BossBarColors.BLUE)
+			.name(Text.of(TextColors.BLUE, "DropParty starting at " + name)).overlay(BossBarOverlays.PROGRESS).build();
+	}
+	
+	public void scheduleEvent(String name, Title title, int delay, int itemsPerSec, boolean isAdmin) {
+		scheduledEvent = new Countdown(() -> startParty(name, itemsPerSec, isAdmin), delay * 60, nextEventBar(name), title, Main.getInstance());
 	}
 	
 	public boolean stopScheduledEvent() {

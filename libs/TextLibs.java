@@ -10,6 +10,7 @@ import org.spongepowered.api.text.format.TextColors;
 public class TextLibs {
 
 	public static final String headerSpacing = "            ";
+	public static final String tab = "   ";
 	
 	public static Text pluginHeader() {
 		Text header = Text.builder()

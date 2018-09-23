@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
@@ -12,17 +13,23 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
 import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.value.BaseValue;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.FireworkEffect;
+import org.spongepowered.api.item.FireworkShape;
+import org.spongepowered.api.item.FireworkShapes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.util.Color;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
 import com.github.elrol.dropparty.config.TierConfiguration;
+import com.google.common.collect.Lists;
 
 public class Methods {
 	
@@ -119,10 +126,8 @@ public class Methods {
 			Optional<ItemStack> opStack = slot.peek();
 			  if(!opStack.isPresent())
 			    continue;
-			  List<ItemStack> yourlist = TierConfiguration.getInstance().getTier(tier);
 			  ItemStack stack = opStack.get();
-			  ItemStackSnapshot asSnapshot = stack.createSnapshot();
-			  if(!yourlist.stream().anyMatch(j -> compare(j.createSnapshot(), asSnapshot))){
+			  if(TierConfiguration.getInstance().isItemListed(tier, stack)){
 			    continue;
 			  }
 			  validOptions.add(stack);
@@ -130,21 +135,13 @@ public class Methods {
 		return validOptions;
 	}
 	
-	private static boolean compare(ItemStackSnapshot ori, ItemStackSnapshot stack){
-		for(Key<? extends BaseValue<? extends Object>> key : ori.getKeys()){
-		    Optional<? extends Object> opOriValue = ori.get(key);
-		    if(!opOriValue.isPresent()){
-		        continue;
-		    }
-		    Optional<? extends Object> opStackValue = stack.get(key);
-		    if(!opStackValue.isPresent()) {
-		        return false;
-		    }
-		    if(opStackValue.get().equals(opOriValue.get())) {
-		      continue;
-		    }
-		   return false;
-		 }
-		return true;
+	private static final FireworkShape[] fireworkShapes = new FireworkShape[] {FireworkShapes.BALL, FireworkShapes.BURST, FireworkShapes.CREEPER, FireworkShapes.LARGE_BALL, FireworkShapes.STAR};
+	
+	public static void spawnFirework(Location<World> location) {
+		Random rand = new Random();
+		FireworkEffect effect = FireworkEffect.builder().color(Color.ofRgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))).flicker(rand.nextBoolean()).shape(fireworkShapes[rand.nextInt(fireworkShapes.length)]).trail(rand.nextBoolean()).build();
+		Entity firework = location.getExtent().createEntity(EntityTypes.FIREWORK, location.getPosition());
+	    firework.offer(Keys.FIREWORK_EFFECTS, Lists.newArrayList(effect));
+	    location.getExtent().spawnEntity(firework);
 	}
 }

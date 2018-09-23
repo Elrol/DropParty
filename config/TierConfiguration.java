@@ -117,15 +117,15 @@ public class TierConfiguration {
 	public boolean isItemListed(int tier, ItemStack type) {
 		loadConfig();
 		if(tier == 0) {
-			for(int i = 1; i < 5; i++) {
+			for(int i = 1; i < 6; i++) {
 				for(ItemStack stack : getTier(i)) {
-					if(stack.getType().equals(type.getType()) 
-							&& ItemStackComparators.ITEM_DATA.compare(type, stack) == 0)
-					System.out.println(type.getTranslation().get() + " found in Tier " + tier);
-					return false;
+					if(stack.getType().equals(type.getType()) && ItemStackComparators.ITEM_DATA.compare(type, stack) == 0) {
+						//System.out.println(type.getTranslation().get() + " found in Tier " + i);
+						return false;
+					}
 				}
 			}
-			System.out.println(type.getTranslation().get() + " not found in Tier " + tier);
+			System.out.println(type.getTranslation().get() + " found in Tier " + tier);
 			return true;
 		}
 		List<ItemStack> items = getTier(tier);

@@ -1,5 +1,9 @@
 package com.github.elrol.dropparty.libs;
 
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
 import net.minecraft.util.math.BlockPos;
 
 public class ExtendedBlockPos {
@@ -52,6 +56,10 @@ public class ExtendedBlockPos {
 	
 	public BlockPos getBlockPos(){
 		return new BlockPos(x, y, z);
+	}
+	
+	public Location<World> getLocation(){
+		return new Location<World>(Sponge.getServer().getWorld(dim).get(), x, y, z);
 	}
 	
 }

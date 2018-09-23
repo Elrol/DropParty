@@ -66,15 +66,19 @@ public class DefaultConfiguration {
 	
 	public int getTotalChance() {
 		int total = 0;
-		for(int i = 0; i < 5; i++) {
+		String output = "";
+		for(int i = 0; i < 6; i++) {
+			output += "Tier " + i + " [" + getTierChance(i) + "], ";
 			total += getTierChance(i);
 		}
+		output += total;
+		System.out.println(output);
 		return total;
 	}
 	
 	public int getTierRange(int tier) {
 		int range = 0;
-		for(int i = tier; i > 0; i--) {
+		for(int i = 0; i <= tier; i++) {
 			range += getTierChance(i);
 		}
 		return range;
