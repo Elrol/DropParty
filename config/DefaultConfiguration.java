@@ -72,7 +72,7 @@ public class DefaultConfiguration {
 			total += getTierChance(i);
 		}
 		output += total;
-		System.out.println(output);
+		//System.out.println(output);
 		return total;
 	}
 	

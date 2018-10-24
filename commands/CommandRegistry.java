@@ -13,6 +13,15 @@ import com.github.elrol.dropparty.libs.PluginInfo.Permissions;
 public class CommandRegistry {
 
 	public static void setup(Main main) {
+		//DropParty cost [name] [cost]
+		CommandSpec dropPartyCost = CommandSpec.builder()
+				.description(Descriptions.dropPartyCost)
+				.permission(Permissions.dropPartyCost)
+				.arguments(
+						DropPartyArguments.partyName(Text.of("name")),
+						GenericArguments.integer(Text.of("cost")))
+				.executor(new DropPartyCostExecutor())
+				.build();
 		//DropParty help
 		CommandSpec dropPartyHelp = CommandSpec.builder()
 				.description(Descriptions.dropPartyHelp)
@@ -23,12 +32,12 @@ public class CommandRegistry {
 		//DropParty start [name]
 		CommandSpec dropPartyStart = CommandSpec.builder()
 				.description(Descriptions.dropPartyStart)
-				.permission(Permissions.dropPartyStart)
+				.permission(Permissions.dropCostPartyStart)
 				.arguments(
 						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("delay"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("persec"))),
-						GenericArguments.optional(GenericArguments.bool(Text.of("admin"))))
+						GenericArguments.flags().flag("op").permissionFlag(Permissions.dropPartyOp).buildWith(GenericArguments.none()))
 				.executor(new DropPartyStartExecutor())
 				.build();
 		//DropParty stop [name]
@@ -261,6 +270,7 @@ public class CommandRegistry {
 			    .child(dropPartyStart, "start")
 			    .child(dropPartyStop, "stop")
 			    .child(dropPartyHelp, "help")
+			    .child(dropPartyCost, "cost")
 			    .executor(new DropPartyExecutor())
 			    .build();
 

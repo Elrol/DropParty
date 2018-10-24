@@ -50,7 +50,8 @@ public class DropPartyEvent {
 		dropPartyAnnouncement = Title.builder().title(Text.of(TextColors.BLUE, "DropParty '" + name + "'"))
 				.subtitle(Text.of(TextColors.AQUA, "Starting Now")).stay(100).build();
 		
-		cd = new Countdown(() -> endEvent(), duration, bar, null, Main.getInstance());
+		if(!isAdmin)
+			cd = new Countdown(() -> endEvent(), duration, bar, null, Main.getInstance());
 		
 		Methods.broadcastTitle(dropPartyAnnouncement);
 		Sponge.getServer().getBroadcastChannel().send(Text.of(TextLibs.pluginHeader(), TextColors.GREEN, "DropParty '" + name + "' has started!"));
@@ -78,7 +79,7 @@ public class DropPartyEvent {
 				for(int j = 5; j > 0; j--) {
 					if(DefaultConfiguration.getInstance().getRange()[j] >= range && (j != 0 ? DefaultConfiguration.getInstance().getRange()[j-1] +1 < range : true)) {
 						tier = j;
-						System.out.println("Tier " + tier + ", RNG is " + range + ", Range is [" + (tier == 0 ? "0" : DefaultConfiguration.getInstance().getRange()[j-1] + 1) + "-" + DefaultConfiguration.getInstance().getRange()[j] + "]");
+						//System.out.println("Tier " + tier + ", RNG is " + range + ", Range is [" + (tier == 0 ? "0" : DefaultConfiguration.getInstance().getRange()[j-1] + 1) + "-" + DefaultConfiguration.getInstance().getRange()[j] + "]");
 						break;
 					}
 				}
@@ -87,24 +88,18 @@ public class DropPartyEvent {
 					chests.add(chest);
 				}
 				List<ItemStack> validOptions = new ArrayList<ItemStack>();
-				for(Inventory chest : chests) {
-					if(chest.size() == 0)
-						continue;
-					while(validOptions.isEmpty()) {
-						validOptions = Methods.getListFromTier(chest, tier);
-						if(validOptions.isEmpty() && tier > 0) {
-							System.out.println("Tier " + tier + " Items not found, trying Tier " + (tier -1));
-							tier--;
-						} else if (validOptions.isEmpty() && tier == 0) {
-							for(int k = 1; k < 5; k++) {
-								if(!Methods.getListFromTier(chest, k).isEmpty()) {
-									validOptions = Methods.getListFromTier(chest, k);
-									break;
-								}
-							}
-						}
+				while(validOptions.isEmpty()) {
+					for(Inventory chest : chests) {
+						if(chest.size() == 0)
+							continue;
+						validOptions.addAll(Methods.getListFromTier(chest, tier));
+					}
+					if(validOptions.isEmpty() && tier > 0) {
+						//System.out.println("Tier " + tier + " Items not found, trying Tier " + (tier -1));
+						tier--;
 					}
 				}
+				//System.out.println("There are " + validOptions.size() + " options");
 				for(Inventory chest : chests) {
 					if(validOptions.isEmpty())
 						endEvent();

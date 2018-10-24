@@ -1,8 +1,11 @@
 package com.github.elrol.dropparty;
 
 import java.io.File;
+import java.util.Optional;
 
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -11,6 +14,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.service.economy.EconomyService;
 
 import com.github.elrol.dropparty.commands.CommandRegistry;
 import com.github.elrol.dropparty.config.DefaultConfiguration;
@@ -32,26 +36,36 @@ public class Main {
 	private static Main instance;
 	public EventBus EVENT_BUS = new EventBus();
 	
-	@Inject
 	private Logger logger;
 	
-	@Inject
-	@DefaultConfig(sharedRoot = false)
 	private File defaultConfig;
-	private File tierConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/tiers.conf");
-	private File setupConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/setups.conf");
-	private File dropConfig = new File(defaultConfig.getParentFile() + PluginInfo.ID + "/drops.conf");
+	private File tierConfig;
+	private File setupConfig; 
+	private File dropConfig; 
 	
-	
-	@Inject
-	@DefaultConfig(sharedRoot = false)
 	private ConfigurationLoader<CommentedConfigurationNode> configManager;
-	private ConfigurationLoader<CommentedConfigurationNode> tierManager = HoconConfigurationLoader.builder().setFile(tierConfig).build();
-	private ConfigurationLoader<CommentedConfigurationNode> setupManager = HoconConfigurationLoader.builder().setFile(setupConfig).build();
-	private ConfigurationLoader<CommentedConfigurationNode> dropManager = HoconConfigurationLoader.builder().setFile(dropConfig).build();
+	private ConfigurationLoader<CommentedConfigurationNode> tierManager;
+	private ConfigurationLoader<CommentedConfigurationNode> setupManager;
+	private ConfigurationLoader<CommentedConfigurationNode> dropManager;
 	
 	private EventManager eventManager;
 	
+	@Inject
+	public Main(Logger logger, @DefaultConfig(sharedRoot = false) ConfigurationLoader<CommentedConfigurationNode> loader, @ConfigDir(sharedRoot = false) File configDir){
+		this.logger = logger;
+		
+		this.defaultConfig = new File(configDir + "/dropparty.conf");
+		this.tierConfig = new File(configDir + "/tiers.conf");
+		this.setupConfig = new File(configDir + "/setups.conf");
+		this.dropConfig = new File(configDir + "/drops.conf");
+		
+		this.configManager =HoconConfigurationLoader.builder().setFile(defaultConfig).build();
+		this.tierManager = HoconConfigurationLoader.builder().setFile(tierConfig).build();
+		this.setupManager = HoconConfigurationLoader.builder().setFile(setupConfig).build();
+		this.dropManager = HoconConfigurationLoader.builder().setFile(dropConfig).build();
+		
+	}
+
 	@Listener
 	public void onServerStart(GameStartedServerEvent event) {
 		logger.info("Started DropParty");
@@ -94,5 +108,12 @@ public class Main {
 	
 	public EventManager getEventManager() {
 		return eventManager;
+	}
+	
+	public EconomyService getEconService() {
+		Optional<EconomyService> service = Sponge.getServiceManager().provide(EconomyService.class);
+		if(!service.isPresent())
+			return null;
+		return service.get();
 	}
 }

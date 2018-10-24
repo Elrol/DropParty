@@ -334,4 +334,14 @@ public class SetupConfiguration {
 		}
 		return totalItems;
 	}
+	
+	public void setPartyCost(String name, int cost) {
+		config.getNode("DropParties", name, "settings", "cost").setValue(cost);
+		saveConfig();
+	}
+	
+	public int getPartyCost(String name) {
+		return config.getNode("DropParties", name, "settings", "cost").getInt();
+	}
+	
 }

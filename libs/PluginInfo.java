@@ -24,7 +24,6 @@ public class PluginInfo {
 		public static final String dropPartyTier = "dropparty.command.tier.help";
 		public static final String dropPartyTierAdd = "dropparty.command.tier.add";
 		public static final String dropPartyTierRemove = "dropparty.command.tier.remove";
-		public static final String dropPartyTP = "dropparty.command.tp";
 		public static final String dropPartyClear = "dropparty.command.clear";
 		public static final String dropPartyDropList = "dropparty.command.droplist.info";
 		public static final String dropPartyDropListAdd = "dropparty.command.droplist.add";
@@ -33,9 +32,14 @@ public class PluginInfo {
 		public static final String dropPartyDropListAddAll = "dropparty.command.droplist.addall";
 		public static final String dropPartyDropListCreate = "dropparty.command.droplist.create";
 		public static final String dropPartyStart = "dropparty.command.start";
+		public static final String dropPartyOp = "dropparty.command.op";
 		public static final String dropPartyStop = "dropparty.command.stop";
 		public static final String dropPartyHelp = "dropparty.command.help";
-		
+		public static final String dropPartyCostSet = "dropparty.command.cost";
+
+		public static final String dropPartyCost = "dropparty.player.cost";
+		public static final String dropPartyTP = "dropparty.player.tp";
+		public static final String dropCostPartyStart = "dropparty.player.start";
 	}
 	
 	//Descriptions
@@ -64,5 +68,6 @@ public class PluginInfo {
 		public static final Text dropPartyStart = Text.of("Starts the specified DropParty");
 		public static final Text dropPartyStop = Text.of("Stops the specified DropParty");
 		public static final Text dropPartyHelp = Text.of("Displays the help message for DropParty");
+		public static final Text dropPartyCost = Text.of("Displays the cost to start the specified DropParty");
 	}
 }

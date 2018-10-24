@@ -127,7 +127,7 @@ public class Methods {
 			  if(!opStack.isPresent())
 			    continue;
 			  ItemStack stack = opStack.get();
-			  if(TierConfiguration.getInstance().isItemListed(tier, stack)){
+			  if(!TierConfiguration.getInstance().isItemListed(tier, stack)){
 			    continue;
 			  }
 			  validOptions.add(stack);

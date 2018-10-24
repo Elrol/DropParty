@@ -6,10 +6,12 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.github.elrol.dropparty.libs.PluginInfo.Descriptions;
+import com.github.elrol.dropparty.libs.PluginInfo.Permissions;
 
 public class DropPartyHelpExecutor implements CommandExecutor {
 
@@ -126,30 +128,52 @@ public class DropPartyHelpExecutor implements CommandExecutor {
 	
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		src.sendMessage(Text.of(
-				create, Descriptions.dropPartyCreate, Text.NEW_LINE,
-				remove, Descriptions.dropPartyRemove, Text.NEW_LINE,
-				chest, Descriptions.dropPartyChest, Text.NEW_LINE,
-				chestAdd, Descriptions.dropPartyChestAdd, Text.NEW_LINE,
-				chestRemove, Descriptions.dropPartyChestRemove, Text.NEW_LINE,
-				drop, Descriptions.dropPartyDrop, Text.NEW_LINE,
-				dropAdd, Descriptions.dropPartyDropAdd, Text.NEW_LINE,
-				dropRemove, Descriptions.dropPartyRemove, Text.NEW_LINE,
-				rename, Descriptions.dropPartyRename, Text.NEW_LINE,
-				tier, Descriptions.dropPartyTier, Text.NEW_LINE,
-				tierAdd, Descriptions.dropPartyTierAdd, Text.NEW_LINE,
-				tierRemove, Descriptions.dropPartyTierRemove, Text.NEW_LINE,
-				teleport, Descriptions.dropPartyTP, Text.NEW_LINE,
-				clear, Descriptions.dropPartyClear, Text.NEW_LINE,
-				droplist, Descriptions.dropPartyDropList, Text.NEW_LINE,
-				droplistCreate, Descriptions.dropPartyDropListCreate, Text.NEW_LINE,
-				droplistAdd, Descriptions.dropPartyDropListAdd, Text.NEW_LINE,
-				droplistRemove, Descriptions.dropPartyDropListRemove, Text.NEW_LINE,
-				droplistAddAll, Descriptions.dropPartyDropListAddAll, Text.NEW_LINE,
-				droplistClear, Descriptions.dropPartyDropListClear, Text.NEW_LINE,
-				start, Descriptions.dropPartyStart, Text.NEW_LINE,
-				stop, Descriptions.dropPartyStop
-				));
+		Builder help = Text.builder();
+		if(src.hasPermission(Permissions.dropPartyCreate))
+			help.append(create, Descriptions.dropPartyCreate, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyRemove))
+			help.append(remove, Descriptions.dropPartyRemove, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyChest))
+			help.append(chest, Descriptions.dropPartyChest, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyChestAdd))
+			help.append(chestAdd, Descriptions.dropPartyChestAdd, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyChestRemove))
+			help.append(chestRemove, Descriptions.dropPartyChestRemove, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDrop))
+			help.append(drop, Descriptions.dropPartyDrop, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropAdd))
+			help.append(dropAdd, Descriptions.dropPartyDropAdd, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyRemove))
+			help.append(dropRemove, Descriptions.dropPartyRemove, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyRename))
+			help.append(rename, Descriptions.dropPartyRename, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyTier))
+			help.append(tier, Descriptions.dropPartyTier, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyTierAdd))
+			help.append(tierAdd, Descriptions.dropPartyTierAdd, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyTierRemove))
+			help.append(tierRemove, Descriptions.dropPartyTierRemove, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyTP))
+			help.append(teleport, Descriptions.dropPartyTP, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyClear))
+			help.append(clear, Descriptions.dropPartyClear, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropList))
+			help.append(droplist, Descriptions.dropPartyDropList, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropListCreate))
+			help.append(droplistCreate, Descriptions.dropPartyDropListCreate, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropListAdd))
+			help.append(droplistAdd, Descriptions.dropPartyDropListAdd, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropListRemove))
+			help.append(droplistRemove, Descriptions.dropPartyDropListRemove, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropListAddAll))
+			help.append(droplistAddAll, Descriptions.dropPartyDropListAddAll, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyDropListClear))
+			help.append(droplistClear, Descriptions.dropPartyDropListClear, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyStart))
+			help.append(start, Descriptions.dropPartyStart, Text.NEW_LINE);
+		if(src.hasPermission(Permissions.dropPartyStop))
+			help.append(stop, Descriptions.dropPartyStop, Text.NEW_LINE);
+		src.sendMessage(help.build());
 		return CommandResult.success();
 	}
 

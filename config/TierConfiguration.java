@@ -120,16 +120,17 @@ public class TierConfiguration {
 			for(int i = 1; i < 6; i++) {
 				for(ItemStack stack : getTier(i)) {
 					if(stack.getType().equals(type.getType()) && ItemStackComparators.ITEM_DATA.compare(type, stack) == 0) {
-						//System.out.println(type.getTranslation().get() + " found in Tier " + i);
+						System.out.println(type.getTranslation().get() + " found in Tier " + i);
 						return false;
 					}
 				}
 			}
-			System.out.println(type.getTranslation().get() + " found in Tier " + tier);
+			//System.out.println(type.getTranslation().get() + " found in Tier " + tier);
 			return true;
 		}
 		List<ItemStack> items = getTier(tier);
 		if(items != null && !items.isEmpty() && items.contains(type)) {
+			System.out.println(type.getTranslation().get() + " found in tier " + tier);
 			return true;
 		}
 		return false;
