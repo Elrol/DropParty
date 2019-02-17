@@ -12,7 +12,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
@@ -39,10 +38,10 @@ public class DropPartyDropListExecutor implements CommandExecutor {
 		if(args.hasAny("name")) {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
-				List<ItemType> items = DropConfiguration.getInstance().getList(name);
+				List<ItemStack> items = DropConfiguration.getInstance().getList(name);
 				if(items != null) {
 					TextLibs.sendMessage(src, "Current Items in the '" + name + "' DropList:");
-					for(ItemType item : items) {
+					for(ItemStack item : items) {
 						TextLibs.sendMessage(src, Text.of(TextLibs.headerSpacing + item.getTranslation().get()));
 					}
 				} else {
@@ -53,7 +52,7 @@ public class DropPartyDropListExecutor implements CommandExecutor {
 				if(src instanceof Player) {
 					Player player = (Player)src;
 					if(player.getEquipped(EquipmentTypes.MAIN_HAND).isPresent()) {
-						ItemType type = player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType();
+						ItemStack type = player.getEquipped(EquipmentTypes.MAIN_HAND).get();
 						DropConfiguration.getInstance().addDropListItem(src, name, type);
 						return CommandResult.success();
 					} else {
@@ -68,7 +67,7 @@ public class DropPartyDropListExecutor implements CommandExecutor {
 				if(src instanceof Player) {
 					Player player = (Player)src;
 					if(player.getEquipped(EquipmentTypes.MAIN_HAND).isPresent()) {
-						ItemType type = player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType();
+						ItemStack type = player.getEquipped(EquipmentTypes.MAIN_HAND).get();
 						DropConfiguration.getInstance().removeDropListItem(src, name, type);
 						return CommandResult.success();
 					} else {
@@ -101,7 +100,7 @@ public class DropPartyDropListExecutor implements CommandExecutor {
 					        grid.slots().forEach(slot -> {
 					            Optional<ItemStack> stackOptional = slot.peek();
 					            if (stackOptional.isPresent()) {
-					            	ItemType item = stackOptional.get().getType();
+					            	ItemStack item = stackOptional.get();
 					            	if(!DropConfiguration.getInstance().doesItemExist(name, item)) {
 					            		DropConfiguration.getInstance().addDropListItem(src, name, item);
 					            	}

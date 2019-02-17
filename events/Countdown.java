@@ -1,7 +1,5 @@
 package com.github.elrol.dropparty.events;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.Sponge;
@@ -32,8 +30,6 @@ public class Countdown {
 			titleTask = Sponge.getScheduler().createTaskBuilder().delay((long) (length * 0.9), TimeUnit.SECONDS).execute(() -> {
 				for(Player p : Sponge.getServer().getOnlinePlayers()) {
 					p.sendTitle(title);
-					List<String> message = new ArrayList<>();
-					message.add("hi");
 				}
 			}).submit(plugin);
 		}

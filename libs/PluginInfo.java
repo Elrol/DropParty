@@ -6,7 +6,7 @@ public class PluginInfo {
 
 	public static final String NAME = "DropParty";
 	public static final String ID = "dropparty";
-	public static final String VERSION = "Alpha v0.6";
+	public static final String VERSION = "Beta v0.8";
 	public static final String DESC = "A Drop Party plugin commissioned by the PokeFreaks network";
 	
 	//Permissions
@@ -36,6 +36,7 @@ public class PluginInfo {
 		public static final String dropPartyStop = "dropparty.command.stop";
 		public static final String dropPartyHelp = "dropparty.command.help";
 		public static final String dropPartyCostSet = "dropparty.command.cost";
+		public static final String dropPartyLoad = "dropparty.command.load";
 
 		public static final String dropPartyCost = "dropparty.player.cost";
 		public static final String dropPartyTP = "dropparty.player.tp";
@@ -69,5 +70,6 @@ public class PluginInfo {
 		public static final Text dropPartyStop = Text.of("Stops the specified DropParty");
 		public static final Text dropPartyHelp = Text.of("Displays the help message for DropParty");
 		public static final Text dropPartyCost = Text.of("Displays the cost to start the specified DropParty");
+		public static final Text dropPartyLoad = Text.of("Loads the DropList into the DropParty Setup");
 	}
 }

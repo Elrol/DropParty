@@ -18,6 +18,10 @@ public class DropPartyCostExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(args.hasAny("cost") && src.hasPermission(Permissions.dropPartyCostSet)) {
 				int cost = args.<Integer>getOne("cost").get();
+				if(cost < -1) {
+					TextLibs.sendError(src, "The cost can't be lower then -1, Defaulting to -1");
+					SetupConfiguration.getInstance().setPartyCost(name, -1);
+				}
 				SetupConfiguration.getInstance().setPartyCost(name, cost);
 				return CommandResult.success();
 			}

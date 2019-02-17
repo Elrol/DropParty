@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import com.github.elrol.dropparty.libs.TextLibs;
 import com.google.common.reflect.TypeToken;
@@ -93,7 +93,7 @@ public class DropConfiguration {
 		return false;
 	}
 	
-	public void addDropListItem(CommandSource src, String name, ItemType type) {
+	public void addDropListItem(CommandSource src, String name, ItemStack type) {
 		if(doesDropListExist(name)) {
 			if(!doesItemExist(name, type)) {
 				addItem(name, type);
@@ -106,7 +106,7 @@ public class DropConfiguration {
 		}
 	}
 	
-	public void removeDropListItem(CommandSource src, String name, ItemType type) {
+	public void removeDropListItem(CommandSource src, String name, ItemStack type) {
 		if(doesDropListExist(name)) {
 			if(doesItemExist(name, type)) {
 				removeItem(name, type);
@@ -119,19 +119,19 @@ public class DropConfiguration {
 		}
 	}
 	
-	public boolean doesItemExist(String name, ItemType type) {
-		List<ItemType> items = getList(name);
+	public boolean doesItemExist(String name, ItemStack type) {
+		List<ItemStack> items = getList(name);
 		if(items != null && items.contains(type))
 			return true;
 		return false;
 	}
 	
 	@SuppressWarnings("serial")
-	public List<ItemType> getList(String name){
-		List<ItemType> items = new ArrayList<ItemType>();
+	public List<ItemStack> getList(String name){
+		List<ItemStack> items = new ArrayList<ItemStack>();
 		try {
 			loadConfig();
-			items = config.getNode("DropLists", name, "Items").getValue(new TypeToken<List<ItemType>> () {});
+			items = config.getNode("DropLists", name, "Items").getValue(new TypeToken<List<ItemStack>> () {});
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
 		}
@@ -139,16 +139,16 @@ public class DropConfiguration {
 	}
 	
 	@SuppressWarnings("serial")
-	public void addItem(String name, ItemType type) {
+	public void addItem(String name, ItemStack type) {
 		loadConfig();
 		try {
-			List<ItemType> items;
+			List<ItemStack> items;
 			if(getList(name) == null)
-				items = new ArrayList<ItemType>();
+				items = new ArrayList<ItemStack>();
 			else
 				items = getList(name);
 			items.add(type);
-			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
 			saveConfig();
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
@@ -156,12 +156,12 @@ public class DropConfiguration {
 	}
 	
 	@SuppressWarnings("serial")
-	public void removeItem(String name, ItemType type) {
+	public void removeItem(String name, ItemStack type) {
 		try {
-			List<ItemType> items = getList(name);
+			List<ItemStack> items = getList(name);
 			items.remove(type);
 			loadConfig();
-			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
 			saveConfig();
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
@@ -171,10 +171,10 @@ public class DropConfiguration {
 	@SuppressWarnings("serial")
 	public void removeAll(String name) {
 		try {
-			List<ItemType> items = getList(name);
+			List<ItemStack> items = getList(name);
 			items.clear();
 			loadConfig();
-			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemType>>() {}, items);
+			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
 			saveConfig();
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();

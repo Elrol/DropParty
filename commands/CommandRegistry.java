@@ -13,13 +13,23 @@ import com.github.elrol.dropparty.libs.PluginInfo.Permissions;
 public class CommandRegistry {
 
 	public static void setup(Main main) {
+		//DropParty load [party] [list]
+		CommandSpec dropPartyLoad = CommandSpec.builder()
+				.description(Descriptions.dropPartyLoad)
+				.permission(Permissions.dropPartyLoad)
+				.arguments(
+						DropPartyArguments.partyName(Text.of("name")),
+						DropPartyArguments.droplistName(Text.of("list")))
+				.executor(new DropPartyLoadExecutor())
+				.build();
+		
 		//DropParty cost [name] [cost]
 		CommandSpec dropPartyCost = CommandSpec.builder()
 				.description(Descriptions.dropPartyCost)
 				.permission(Permissions.dropPartyCost)
 				.arguments(
 						DropPartyArguments.partyName(Text.of("name")),
-						GenericArguments.integer(Text.of("cost")))
+						GenericArguments.optional(GenericArguments.integer(Text.of("cost"))))
 				.executor(new DropPartyCostExecutor())
 				.build();
 		//DropParty help
@@ -37,10 +47,10 @@ public class CommandRegistry {
 						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("delay"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("persec"))),
-						GenericArguments.flags().flag("op").permissionFlag(Permissions.dropPartyOp).buildWith(GenericArguments.none()))
+						GenericArguments.optional(GenericArguments.string(Text.of("admin"))))
 				.executor(new DropPartyStartExecutor())
 				.build();
-		//DropParty stop [name]
+		//DropParty stop
 		CommandSpec dropPartyStop = CommandSpec.builder()
 				.description(Descriptions.dropPartyStop)
 				.permission(Permissions.dropPartyStop)
@@ -56,7 +66,7 @@ public class CommandRegistry {
 				.executor(new DropPartyDropListExecutor(5))
 				.build();
 		
-		//DropParty droplist add [name]
+		//DropParty droplist addall [name]
 		CommandSpec dropPartyDropListAddAll = CommandSpec.builder()
 				.description(Descriptions.dropPartyDropListAddAll)
 				.permission(Permissions.dropPartyDropListAddAll)
@@ -77,7 +87,7 @@ public class CommandRegistry {
 				.build();
 		
 		
-		//DropParty droplist add [name]
+		//DropParty droplist remove [name]
 		CommandSpec dropPartyDropListRemove = CommandSpec.builder()
 				.description(Descriptions.dropPartyDropListRemove)
 				.permission(Permissions.dropPartyDropListRemove)
@@ -271,6 +281,7 @@ public class CommandRegistry {
 			    .child(dropPartyStop, "stop")
 			    .child(dropPartyHelp, "help")
 			    .child(dropPartyCost, "cost")
+			    .child(dropPartyLoad, "load")
 			    .executor(new DropPartyExecutor())
 			    .build();
 

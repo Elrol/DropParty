@@ -66,13 +66,9 @@ public class DefaultConfiguration {
 	
 	public int getTotalChance() {
 		int total = 0;
-		String output = "";
 		for(int i = 0; i < 6; i++) {
-			output += "Tier " + i + " [" + getTierChance(i) + "], ";
 			total += getTierChance(i);
 		}
-		output += total;
-		//System.out.println(output);
 		return total;
 	}
 	

@@ -140,10 +140,6 @@ public class SetupConfiguration {
 	public void addDrop(CommandSource src, String name, ExtendedBlockPos pos) {
 		if(doesPartyExist(name)) {
 			int id = getDropId(name);
-			if(id >= 5){
-				TextLibs.sendError(src, "Cannot have more then 5 drops per party.");
-				return;
-			}
 			if(doesDropExist(name, id, pos)) {
 				TextLibs.sendError(src, "Duplicate drop located at: X:" + pos.getX() + ", Y:" + pos.getY() + ", Z:" + pos.getZ() + "(" + pos.getDim() + ")");
 				return;
@@ -318,11 +314,9 @@ public class SetupConfiguration {
 		Random rand = new Random();
 		ExtendedBlockPos pos = drops.get(rand.nextInt(drops.size()));
 		World world = Sponge.getServer().getWorld(pos.getDim()).get();
-		ItemStack itemStack = item;
-		
 		Entity itemEntity = world.createEntity( EntityTypes.ITEM, new Vector3d(pos.getX(), pos.getY(), pos.getZ()) );
         Item items = (Item) itemEntity;
-        items.offer( Keys.REPRESENTED_ITEM, itemStack.createSnapshot() );
+        items.offer( Keys.REPRESENTED_ITEM, item.createSnapshot() );
         world.spawnEntity(items);
 	}
 	

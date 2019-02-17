@@ -119,7 +119,7 @@ public class DropPartyEvent {
 				}
 			}
 		}
-			).interval(1, TimeUnit.SECONDS).submit(Main.getInstance());
+			).interval(5, TimeUnit.SECONDS).submit(Main.getInstance());
 		//new DropPartyRunnable(name, itemsPerSec)
 		Main.getInstance().getLogger().info("Starting DropParty '" + name + "'");
 	}
@@ -138,9 +138,12 @@ public class DropPartyEvent {
 	
 	public void endEvent() {
 		endingParty(name);
-		cd.cancel();
-		timeRemainingLoop.cancel();
-		dropParty.cancel();
+		if(cd != null)
+			cd.cancel();
+		if(timeRemainingLoop != null)
+			timeRemainingLoop.cancel();
+		if(dropParty != null)
+			dropParty.cancel();
 		winnerEffects();
 		Main.getInstance().getEventManager().isRunning = false;
 	}
