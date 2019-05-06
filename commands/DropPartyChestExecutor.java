@@ -9,9 +9,10 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
-import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -32,10 +33,10 @@ public class DropPartyChestExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
 				src.sendMessage(TextLibs.pluginMessage("List of chests for " + name));
-				List<ExtendedBlockPos> chests = SetupConfiguration.getInstance().getChests(name);
+				List<Location<World>> chests = SetupConfiguration.getInstance().getChests(name);
 				if(!chests.isEmpty()) {
 					for(int i = 0; i < chests.size(); i++) {
-						src.sendMessage(Text.of("[" + i + "] X:" + chests.get(i).getX() + ", Y:" + chests.get(i).getY() + ", Z:" + chests.get(i).getZ() + "(" + chests.get(i).getDim() + ")"));
+						src.sendMessage(Text.of("[" + i + "] X:" + chests.get(i).getBlockX() + ", Y:" + chests.get(i).getBlockY() + ", Z:" + chests.get(i).getBlockZ() + "(" + chests.get(i).getExtent().getName() + ")"));
 					}
 				} else {
 					src.sendMessage(Text.of("No chests found"));
@@ -46,17 +47,17 @@ public class DropPartyChestExecutor implements CommandExecutor {
 					int x = args.<Integer>getOne("x").get();
 					int y = args.<Integer>getOne("y").get();
 					int z = args.<Integer>getOne("z").get();
-					String worldName = Methods.getWorldName(args);
+					World world = Methods.getWorld(args);
 					int id = SetupConfiguration.getInstance().getChestId(name);
 					src.sendMessage(TextLibs.pluginMessage("set chest " + id + " for Party " + name));
-					SetupConfiguration.getInstance().addChest(src, name, new ExtendedBlockPos(x,y,z, worldName));
+					SetupConfiguration.getInstance().addChest(src, name, new Location<World>(world, x,y,z));
 					return CommandResult.success();
 				} else {
 					if(src instanceof Player) {
 						Player player = (Player)src;
-						List<ExtendedBlockPos> chests = Methods.getChest(player);
-						for(ExtendedBlockPos pos : chests) {
-							SetupConfiguration.getInstance().addChest(src, name, pos);
+						List<Location<World>> chests = Methods.getChest(player);
+						for(Location<World> loc : chests) {
+							SetupConfiguration.getInstance().addChest(src, name, loc);
 						}
 						return CommandResult.success();
 					} else {

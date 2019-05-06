@@ -70,6 +70,10 @@ public class TextLibs {
 		Sponge.getServer().getConsole().sendMessage(pluginMessage(string));
 	}
 	
+	public static void sendConsoleError(String string) {
+		Sponge.getServer().getConsole().sendMessage(Text.of(TextColors.RED, pluginMessage(string)));
+	}
+	
 	public static void sendPlayerMessage(Player player, String string) {
 		player.sendMessage(pluginMessage(string));
 	}

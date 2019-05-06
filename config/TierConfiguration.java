@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackComparators;
@@ -92,7 +91,9 @@ public class TierConfiguration {
 	public void addItem(CommandSource src, int tier, ItemStack type) {
 		loadConfig();
 		try {
-			List<ItemStack> items = getTier(tier);
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			if(getTier(tier) != null)
+				items = getTier(tier);
 			if(!isItemListed(type)) {
 				items.add(type);
 				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
@@ -107,7 +108,7 @@ public class TierConfiguration {
 	}
 	
 	public boolean isItemListed(ItemStack type) throws ObjectMappingException {
-		for(int i = 1; i < 5; i++) {
+		for(int i = 1; i < 6; i++) {
 			if(isItemListed(i, type))
 				return true;
 		}
@@ -118,60 +119,67 @@ public class TierConfiguration {
 		loadConfig();
 		if(tier == 0) {
 			for(int i = 1; i < 6; i++) {
+				if(getTier(i) == null)
+					continue;
 				for(ItemStack stack : getTier(i)) {
 					if(stack.getType().equals(type.getType()) && ItemStackComparators.ITEM_DATA.compare(type, stack) == 0) {
-						//System.out.println(type.getTranslation().get() + " found in Tier " + i);
+						//System.out.println(type.getTranslation().get() + " is not in tier " + tier);
 						return false;
 					}
 				}
 			}
-			//System.out.println(type.getTranslation().get() + " found in Tier " + tier);
 			return true;
 		}
 		List<ItemStack> items = getTier(tier);
-		if(items != null && !items.isEmpty() && items.contains(type)) {
-			System.out.println(type.getTranslation().get() + " found in tier " + tier);
-			return true;
+		if(items != null && !items.isEmpty()) {
+			for(ItemStack stack : items) {
+				if(stack.getType().equals(type.getType()) && ItemStackComparators.ITEM_DATA.compare(type, stack) == 0) {
+					//System.out.println(type.getTranslation().get() + " found in tier " + tier);
+					return true;
+				}
+			}
 		}
 		return false;
 	}
 	
 	@SuppressWarnings("serial")
 	public List<ItemStack> getTier(int tier){
+		List<ItemStack> list = new ArrayList<ItemStack>();
 		loadConfig();
 		try {
-			return config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemStack>>() {});
+			List<ItemStack> temp = config.getNode("Tier " + tier).getValue(new TypeToken<List<ItemStack>>() {});
+			if(temp != null)
+				list = temp;
 		} catch (ObjectMappingException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return list;
 	}
 
 	@SuppressWarnings("serial")
 	public void removeItem(CommandSource src, int tier, ItemStack item) {
 		loadConfig();
 		List<ItemStack> items = getTier(tier);
-		if(items.contains(item)) {
-			items.remove(item);
-			try {
-				config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
-				TextLibs.sendMessage(src, "'" + item.getTranslation().get() + "' was removed from 'Tier " + tier + "'");
-				saveConfig();
-			} catch (ObjectMappingException e) {
-				e.printStackTrace();
+		for(ItemStack stack : new ArrayList<ItemStack>(items)) {
+			if(stack.getType().equals(item.getType()) && ItemStackComparators.ITEM_DATA.compare(item, stack) == 0) {
+				try {
+					items.remove(stack);
+					config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
+					TextLibs.sendMessage(src, "'" + item.getTranslation().get() + "' was removed from 'Tier " + tier + "'");
+					saveConfig();
+				} catch(ObjectMappingException e) {
+					e.printStackTrace();
+				}
 			}
-		} else {
-			TextLibs.sendError(src, "'" + item.getTranslation().get() + "' was not in 'Tier " + tier + "' , could not be removed.");
-			return;
 		}
 	}
 	
 	@SuppressWarnings("serial")
 	public void clearTier(CommandSource src, int tier) {
 		loadConfig();
-		List<ItemType> items = new ArrayList<ItemType>();
+		List<ItemStack> items = new ArrayList<ItemStack>();
 		try {
-			config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemType>>() {}, items);
+			config.getNode("Tier " + tier).setValue(new TypeToken<List<ItemStack>>() {}, items);
 			TextLibs.sendMessage(src, "Cleared 'Tier " + tier + "' of all Items");
 			saveConfig();
 		} catch (ObjectMappingException e) {

@@ -9,9 +9,10 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
-import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -32,10 +33,10 @@ public class DropPartyDropExecutor implements CommandExecutor {
 			String name = args.<String>getOne("name").get();
 			if(mode == 0) {
 				src.sendMessage(TextLibs.pluginMessage("List of drops for " + name));
-				List<ExtendedBlockPos> drops = SetupConfiguration.getInstance().getDrops(name);
+				List<Location<World>> drops = SetupConfiguration.getInstance().getDrops(name);
 				if(!drops.isEmpty()) {
 					for(int i = 0; i < drops.size(); i++) {
-						src.sendMessage(Text.of("[" + i + "] X:" + drops.get(i).getX() + ", Y:" + drops.get(i).getY() + ", Z:" + drops.get(i).getZ() + "(" + drops.get(i).getDim() + ")"));
+						src.sendMessage(Text.of("[" + i + "] X:" + drops.get(i).getBlockX() + ", Y:" + drops.get(i).getBlockY() + ", Z:" + drops.get(i).getBlockZ() + "(" + drops.get(i).getExtent().getName() + ")"));
 					}
 				} else {
 					src.sendMessage(Text.of("No drops found"));
@@ -46,15 +47,15 @@ public class DropPartyDropExecutor implements CommandExecutor {
 					int x = args.<Integer>getOne("x").get();
 					int y = args.<Integer>getOne("y").get();
 					int z = args.<Integer>getOne("z").get();
-					String worldName = Methods.getWorldName(args);
+					World world = Methods.getWorld(args);
 					int id = SetupConfiguration.getInstance().getDropId(name);
 					src.sendMessage(TextLibs.pluginMessage("set drop " + id + " for Party " + name));
-					SetupConfiguration.getInstance().addDrop(src, name, new ExtendedBlockPos(x,y,z, worldName));
+					SetupConfiguration.getInstance().addDrop(src, name, new Location<World>(world, x,y,z));
 					return CommandResult.success();
 				} else {
 					if(src instanceof Player) {
 						Player player = (Player)src;
-						SetupConfiguration.getInstance().addDrop(src, name, Methods.getBlockPos(player));
+						SetupConfiguration.getInstance().addDrop(src, name, player.getLocation());
 						return CommandResult.success();
 					} else {
 						src.sendMessage(TextLibs.pluginError("You must set the coords of a drop while in console"));

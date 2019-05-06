@@ -1,15 +1,15 @@
 package com.github.elrol.dropparty.commands;
 
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
-import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -34,13 +34,8 @@ public class DropPartyCreateExecutor implements CommandExecutor {
 				int x = args.<Integer>getOne("x").get();
 				int y = args.<Integer>getOne("y").get();
 				int z = args.<Integer>getOne("z").get();
-				String world;
-					if(args.hasAny("dim") && Methods.isWorldNameValid(args.<String>getOne("dim").get()))
-						world = args.<String>getOne("dim").get();
-					else
-						src.sendMessage(TextLibs.pluginError("World missing, or invalid, defaulting to " + Sponge.getServer().getDefaultWorldName()));
-						world = Sponge.getServer().getDefaultWorldName();
-				SetupConfiguration.getInstance().addChest(src, name, new ExtendedBlockPos(x, y ,z, world));
+				World world = Methods.getWorld(args);
+				SetupConfiguration.getInstance().addChest(src, name, new Location<World>(world, x, y ,z));
 				
 			}
 		}

@@ -33,9 +33,9 @@ import com.google.common.collect.Lists;
 
 public class Methods {
 	
-	public static List<ExtendedBlockPos> getChest(Player player) {
-		List<ExtendedBlockPos> chests = new ArrayList<ExtendedBlockPos>();
-		String world = player.getWorld().getName();
+	public static List<Location<World>> getChest(Player player) {
+		List<Location<World>> chests = new ArrayList<Location<World>>();
+		World world = player.getWorld();
 		int originX = player.getLocation().getBlockX();
 		int originY = player.getLocation().getBlockY();
 		int originZ = player.getLocation().getBlockZ();
@@ -44,7 +44,7 @@ public class Methods {
 				for(int k = -1; k <= 1; k++) {
 					BlockState block = player.getWorld().getBlock(originX + i, originY + j, originZ + k);
 					if(block.getType().equals(BlockTypes.CHEST)) {
-						chests.add(new ExtendedBlockPos(originX + i, originY + j, originZ + k, world));
+						chests.add(new Location<World>(world, originX + i, originY + j, originZ + k));
 					}
 				}	
 			}	
@@ -54,29 +54,15 @@ public class Methods {
 		return chests;
 	}
 	
-	public static boolean isWorldNameValid(String dimName) {
-		for(World world : Sponge.getServer().getWorlds()) {
-			if(world.getName().equalsIgnoreCase(dimName))
-				return true;
+	public static World getWorld(CommandContext args) {
+		World world = Sponge.getServer().getWorld(Sponge.getServer().getDefaultWorldName()).get();
+		if(args.hasAny("dim")) {
+			Optional<World> worldOpt = Sponge.getServer().getWorld(args.<String>getOne("dim").get());
+			if(worldOpt.isPresent()) {
+				world = worldOpt.get();
+			}
 		}
-		return false;
-	}
-
-	public static String getWorldName(CommandContext args) {
-		String worldName;
-		if(args.hasAny("dim") && Methods.isWorldNameValid(args.<String>getOne("dim").get()))
-			worldName = args.<String>getOne("dim").get();
-		else
-			worldName = Sponge.getServer().getDefaultWorldName();
-		return worldName;
-	}
-	 
-	public static ExtendedBlockPos getBlockPos(Player player) {
-		int x = player.getLocation().getBlockX();
-		int y = player.getLocation().getBlockY();
-		int z = player.getLocation().getBlockZ();
-		String dim = player.getWorld().getName();
-		return new ExtendedBlockPos(x, y, z, dim);
+		return world;
 	}
 	
 	public static Map<String, String> getPartyNames(){
@@ -99,19 +85,18 @@ public class Methods {
 		}
 	}
 	
-	public static TileEntityCarrier getCarrier(ExtendedBlockPos pos) {
-		World world = Sponge.getServer().getWorld(pos.getDim()).get();
-		if(!world.getBlock(pos.getX(), pos.getY(), pos.getZ()).getType().equals(BlockTypes.CHEST)) {
-			TextLibs.pluginError("Chest at X:" + pos.getX() + " Y:" + pos.getY() + " Z:" + pos.getZ() + " is not found, skipping it.");
+	public static TileEntityCarrier getCarrier(Location<World> loc) {
+		if(!loc.getBlock().getType().equals(BlockTypes.CHEST)) {
+			TextLibs.pluginError("Chest at X:" + loc.getBlockX() + " Y:" + loc.getBlockY() + " Z:" + loc.getBlockZ() + " is not found, removing it.");
 			return null;
 		}
-		return (TileEntityCarrier)world.getTileEntity(pos.getX(), pos.getY(), pos.getZ()).get();
+		return (TileEntityCarrier)loc.getTileEntity().get();
 		
 	}
 	
 	public static boolean doesPartyHaveItems(String name) {
-		List<ExtendedBlockPos> chests = SetupConfiguration.getInstance().getChests(name);
-		for(ExtendedBlockPos chest : chests) {
+		List<Location<World>> chests = SetupConfiguration.getInstance().getChests(name);
+		for(Location<World> chest : chests) {
 			for(Inventory slot : Methods.getCarrier(chest).getInventory().slots()){
 				if(slot.size() == 1)
 					return true;
@@ -135,6 +120,32 @@ public class Methods {
 		return validOptions;
 	}
 	
+	public static List<List<ItemStack>> getTierItemsFromParty(List<Inventory> chests){
+		List<List<ItemStack>> partyTierItems = new ArrayList<List<ItemStack>>();
+		for(int i = 0; i < 6; i++) {
+			for(Inventory chest : chests) {
+				if(partyTierItems.isEmpty() || partyTierItems.size() <= i || 
+						(partyTierItems.size() > i && partyTierItems.get(i).isEmpty())) {
+					partyTierItems.add(getListFromTier(chest, i));	
+				} else {
+					List<ItemStack> stacks = partyTierItems.get(i);
+					stacks.addAll(getListFromTier(chest, i));
+					partyTierItems.set(i, stacks);
+				}
+			}
+		}
+		return partyTierItems;
+	}
+	
+	public static boolean hasLowerTiers(List<List<ItemStack>> tierItems, int tier) {
+		for(int i = tier; i >= 0; i--) {
+			if(!tierItems.get(i).isEmpty()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private static final FireworkShape[] fireworkShapes = new FireworkShape[] {FireworkShapes.BALL, FireworkShapes.BURST, FireworkShapes.CREEPER, FireworkShapes.LARGE_BALL, FireworkShapes.STAR};
 	
 	public static void spawnFirework(Location<World> location) {
@@ -142,6 +153,13 @@ public class Methods {
 		FireworkEffect effect = FireworkEffect.builder().color(Color.ofRgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))).flicker(rand.nextBoolean()).shape(fireworkShapes[rand.nextInt(fireworkShapes.length)]).trail(rand.nextBoolean()).build();
 		Entity firework = location.getExtent().createEntity(EntityTypes.FIREWORK, location.getPosition());
 	    firework.offer(Keys.FIREWORK_EFFECTS, Lists.newArrayList(effect));
+	    firework.offer(Keys.FIREWORK_FLIGHT_MODIFIER, 2);
 	    location.getExtent().spawnEntity(firework);
 	}
+	
+	public static String itemToString(ItemStack stack) {
+		
+		return "";
+	}
+	
 }

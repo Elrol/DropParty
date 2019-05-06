@@ -33,14 +33,15 @@ public class PluginInfo {
 		public static final String dropPartyDropListCreate = "dropparty.command.droplist.create";
 		public static final String dropPartyStart = "dropparty.command.start";
 		public static final String dropPartyOp = "dropparty.command.op";
-		public static final String dropPartyStop = "dropparty.command.stop";
-		public static final String dropPartyHelp = "dropparty.command.help";
 		public static final String dropPartyCostSet = "dropparty.command.cost";
 		public static final String dropPartyLoad = "dropparty.command.load";
+		public static final String dropPartyStopOverride = "dropparty.command.stop";
 
 		public static final String dropPartyCost = "dropparty.player.cost";
 		public static final String dropPartyTP = "dropparty.player.tp";
 		public static final String dropCostPartyStart = "dropparty.player.start";
+		public static final String dropPartyStop = "dropparty.player.stop";
+		public static final String dropPartyHelp = "dropparty.player.help";
 	}
 	
 	//Descriptions

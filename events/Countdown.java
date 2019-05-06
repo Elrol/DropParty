@@ -35,7 +35,9 @@ public class Countdown {
 		}
 		
 		secIntervalTask = Sponge.getScheduler().createTaskBuilder().interval(1, TimeUnit.SECONDS).execute(() -> {
-			if(time > 0) {
+			if(time == -1) {
+				bar.removePlayers(bar.getPlayers()).addPlayers(Sponge.getServer().getOnlinePlayers());
+			} else if(time > 0) {
 				time--;
 				float percent = ((float)time / (float) length);
 				bar.setPercent(percent).removePlayers(bar.getPlayers()).addPlayers(Sponge.getServer().getOnlinePlayers());

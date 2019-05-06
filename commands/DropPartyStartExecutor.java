@@ -27,6 +27,9 @@ public class DropPartyStartExecutor implements CommandExecutor {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+		Player player = null;
+		if(src instanceof Player)
+			player = (Player)src;
 		SetupConfiguration setup = SetupConfiguration.getInstance();
 		if(args.hasAny("name")) {
 			String name = args.<String>getOne("name").get();
@@ -34,8 +37,18 @@ public class DropPartyStartExecutor implements CommandExecutor {
 				TextLibs.sendError(src, "A Drop Party is already running, Please wait until it has finished.");
 				return CommandResult.success();
 			}
-			if(src instanceof Player) {
-				Player player = (Player)src;
+			boolean isAdmin = false;
+			if(args.hasAny("admin") && args.<String>getOne("admin").get().equalsIgnoreCase("admin")) {
+				if(src.hasPermission(Permissions.dropPartyOp)) {
+					isAdmin = true;
+				} else {
+					TextLibs.sendError(src, "You do not have the permissions needed to start and Admin DropParty");
+					return CommandResult.empty();
+					
+				}
+			}
+			
+			if(player != null) {
 				if(!src.hasPermission(Permissions.dropPartyStart)) {
 					if(SetupConfiguration.getInstance().getPartyCost(name) >= 0 && Main.getInstance().getEconService() != null) {
 						Optional<UniqueAccount> account = Main.getInstance().getEconService().getOrCreateAccount(player.getUniqueId());
@@ -50,20 +63,20 @@ public class DropPartyStartExecutor implements CommandExecutor {
 			if(args.hasAny("persec")){
 				persec = args.<Integer>getOne("persec").get();
 				if(persec > 20){
-					persec = 20;
 					TextLibs.sendError(src, "ItemsPerSec cannot exceed 20");
+					return CommandResult.empty();
+				} else if(persec < 1) {
+					TextLibs.sendError(src, "ItemsPerSec must be at least 1");
+					return CommandResult.empty();
 				}
 			}
-			boolean isAdmin = false;
-			if(src.hasPermission(Permissions.dropPartyOp) && args.hasAny("admin") && args.<String>getOne("admin").get().equalsIgnoreCase("admin"))
-				isAdmin = true;
 			Title title = Title.builder().title(Text.of(TextColors.BLUE, "DropParty '" + name + "'"))
 					.subtitle(Text.of(TextColors.AQUA, "Starting in " + delay + " min")).stay(100).build();
 			if(setup.doesPartyExist(name))
 				if(!setup.getChests(name).isEmpty())
 					if(!setup.getDrops(name).isEmpty())
 						if(setup.getPartyItemQty(name) > 0) {
-							Main.getInstance().getEventManager().scheduleEvent(name, null, delay, persec, isAdmin);
+							Main.getInstance().getEventManager().scheduleEvent(player, name, null, delay, persec, isAdmin);
 							Methods.broadcastTitle(title);
 						} else TextLibs.sendError(src, "There are no items in the chests for the party.");
 					else TextLibs.sendError(src, "There are no DropPoints specified for the party. Use /DropParty drop add " + name);

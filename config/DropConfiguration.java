@@ -3,10 +3,13 @@ package com.github.elrol.dropparty.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackComparators;
 
 import com.github.elrol.dropparty.libs.TextLibs;
 import com.google.common.reflect.TypeToken;
@@ -95,12 +98,8 @@ public class DropConfiguration {
 	
 	public void addDropListItem(CommandSource src, String name, ItemStack type) {
 		if(doesDropListExist(name)) {
-			if(!doesItemExist(name, type)) {
-				addItem(name, type);
-				TextLibs.sendMessage(src, "'" + type.getTranslation().get() + "' was added to the DropList '" + name + "'");
-			} else {
-				TextLibs.sendError(src, "'" + type.getTranslation().get() + "' is already in the DropList '" + name + "'");
-			}
+			addItem(name, type);
+			TextLibs.sendMessage(src, "'" + type.getTranslation().get() + "' was added to the DropList '" + name + "'");
 		} else {
 			TextLibs.sendError(src, "The DropList '" + name +"' doesn't exist");
 		}
@@ -121,32 +120,56 @@ public class DropConfiguration {
 	
 	public boolean doesItemExist(String name, ItemStack type) {
 		List<ItemStack> items = getList(name);
-		if(items != null && items.contains(type))
-			return true;
+		if(items != null && !items.isEmpty()) {
+			for(ItemStack stack : items) {
+				if(stack.getType().equals(type.getType()) && ItemStackComparators.ITEM_DATA.compare(type, stack) == 0) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 	
 	@SuppressWarnings("serial")
 	public List<ItemStack> getList(String name){
 		List<ItemStack> items = new ArrayList<ItemStack>();
-		try {
-			loadConfig();
-			items = config.getNode("DropLists", name, "Items").getValue(new TypeToken<List<ItemStack>> () {});
-		} catch (ObjectMappingException e) {
-			e.printStackTrace();
+		if(doesDropListExist(name)) {
+			try {
+				loadConfig();
+				List<ItemStack> temp = config.getNode("DropLists", name, "Items").getValue(new TypeToken<List<ItemStack>> () {});
+				if(temp != null)
+					items = temp;
+			} catch (ObjectMappingException e) {
+				e.printStackTrace();
+			}
 		}
 		return items; 
+	}
+	
+	public Map<ItemStack, Integer> getMap(String name){
+		Map<ItemStack, Integer> map = new HashMap<ItemStack, Integer>();
+		List<ItemStack> list = getList(name);
+		if(list != null && !list.isEmpty()) {
+			for(ItemStack stack : list) {
+				ItemStack single = stack.copy();
+				single.setQuantity(1);
+				if(map.containsKey(single)) {
+					int qty = map.get(single);
+					qty += stack.getQuantity();
+					map.put(single, qty);
+				} else {
+					map.put(single, stack.getQuantity());
+				}
+			}
+		}
+		return map;
 	}
 	
 	@SuppressWarnings("serial")
 	public void addItem(String name, ItemStack type) {
 		loadConfig();
 		try {
-			List<ItemStack> items;
-			if(getList(name) == null)
-				items = new ArrayList<ItemStack>();
-			else
-				items = getList(name);
+			List<ItemStack> items = getList(name);
 			items.add(type);
 			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
 			saveConfig();
@@ -156,15 +179,19 @@ public class DropConfiguration {
 	}
 	
 	@SuppressWarnings("serial")
-	public void removeItem(String name, ItemStack type) {
-		try {
-			List<ItemStack> items = getList(name);
-			items.remove(type);
-			loadConfig();
-			config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
-			saveConfig();
-		} catch (ObjectMappingException e) {
-			e.printStackTrace();
+	public void removeItem(String name, ItemStack item) {
+		loadConfig();
+		List<ItemStack> items = getList(name);
+		for(ItemStack stack : new ArrayList<ItemStack>(items)) {
+			if(stack.getType().equals(item.getType()) && ItemStackComparators.ITEM_DATA.compare(item, stack) == 0) {
+				try {
+					items.remove(stack);
+					config.getNode("DropLists", name, "Items").setValue(new TypeToken<List<ItemStack>>() {}, items);
+					saveConfig();
+				} catch(ObjectMappingException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	

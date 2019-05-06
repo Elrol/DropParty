@@ -5,9 +5,13 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -23,6 +27,7 @@ import com.github.elrol.dropparty.config.SetupConfiguration;
 import com.github.elrol.dropparty.config.TierConfiguration;
 import com.github.elrol.dropparty.events.EventManager;
 import com.github.elrol.dropparty.libs.PluginInfo;
+import com.github.elrol.dropparty.libs.TextLibs;
 import com.google.inject.Inject;
 
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -96,6 +101,22 @@ public class Main {
 	@Listener
 	public void postInit(GamePostInitializationEvent event){
 		instance = this;
+	}
+	
+	@Listener
+	public void onBlockActivate(InteractBlockEvent event) {
+		BlockType type =event.getTargetBlock().getState().getType();
+		if(!eventManager.isRunning)
+			return;
+		if(!(event.getSource() instanceof Player))
+			return;
+		Player player = (Player)event.getSource();
+		if(type.equals(BlockTypes.CHEST) || type.equals(BlockTypes.TRAPPED_CHEST)) {
+			if(eventManager.getCurrentParty().getChests().contains(event.getTargetBlock().getLocation().get())) {
+				TextLibs.sendError(player, "You can not open a DropParty chest durring a DropParty.");
+				event.setCancelled(true);
+			}
+		}
 	}
 	
 	public static Main getInstance() {

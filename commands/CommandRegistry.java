@@ -1,5 +1,8 @@
 package com.github.elrol.dropparty.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -50,6 +53,7 @@ public class CommandRegistry {
 						GenericArguments.optional(GenericArguments.string(Text.of("admin"))))
 				.executor(new DropPartyStartExecutor())
 				.build();
+		
 		//DropParty stop
 		CommandSpec dropPartyStop = CommandSpec.builder()
 				.description(Descriptions.dropPartyStop)
@@ -57,67 +61,24 @@ public class CommandRegistry {
 				.executor(new DropPartyStopExecutor())
 				.build();
 		
-		//DropParty droplist create [name]
-		CommandSpec dropPartyDropListCreate = CommandSpec.builder()
-				.description(Descriptions.dropPartyDropListCreate)
-				.permission(Permissions.dropPartyDropListCreate)
-				.arguments(
-						GenericArguments.string(Text.of("name")))
-				.executor(new DropPartyDropListExecutor(5))
-				.build();
+		Map<String, Integer> droplistChoices = new HashMap<String, Integer>();
+		droplistChoices.put("add", 1);
+		droplistChoices.put("remove", 2);
+		droplistChoices.put("clear", 3);
+		droplistChoices.put("addall", 4);
+		droplistChoices.put("create", 5);
 		
-		//DropParty droplist addall [name]
-		CommandSpec dropPartyDropListAddAll = CommandSpec.builder()
-				.description(Descriptions.dropPartyDropListAddAll)
-				.permission(Permissions.dropPartyDropListAddAll)
-				.arguments(
-						DropPartyArguments.droplistName(Text.of("name")),
-						DropPartyArguments.partyName(Text.of("party")))
-				.executor(new DropPartyDropListExecutor(4))
-				.build();
-		
-		
-		//DropParty droplist clear [name]
-		CommandSpec dropPartyDropListClear = CommandSpec.builder()
-				.description(Descriptions.dropPartyDropListClear)
-				.permission(Permissions.dropPartyDropListClear)
-				.arguments(
-						DropPartyArguments.droplistName(Text.of("name")))
-				.executor(new DropPartyDropListExecutor(3))
-				.build();
-		
-		
-		//DropParty droplist remove [name]
-		CommandSpec dropPartyDropListRemove = CommandSpec.builder()
-				.description(Descriptions.dropPartyDropListRemove)
-				.permission(Permissions.dropPartyDropListRemove)
-				.arguments(
-						DropPartyArguments.droplistName(Text.of("name")))
-				.executor(new DropPartyDropListExecutor(2))
-				.build();
-				
-		//DropParty droplist add [name]
-		CommandSpec dropPartyDropListAdd = CommandSpec.builder()
-				.description(Descriptions.dropPartyDropListAdd)
-				.permission(Permissions.dropPartyDropListAdd)
-				.arguments(
-						DropPartyArguments.droplistName(Text.of("name")))
-				.executor(new DropPartyDropListExecutor(1))
-				.build();
-		
-		//DropParty droplist [name]
+		//DropParty droplist [name] {subcmd}
 		CommandSpec dropPartyDropList = CommandSpec.builder()
 				.description(Descriptions.dropPartyDropList)
 				.permission(Permissions.dropPartyDropList)
 				.arguments(
-						DropPartyArguments.droplistName(Text.of("name")))
-				.child(dropPartyDropListAdd, "add")
-				.child(dropPartyDropListRemove, "remove")
-				.child(dropPartyDropListClear, "clear")
-				.child(dropPartyDropListAddAll, "addall")
-				.child(dropPartyDropListCreate, "create")
-				.executor(new DropPartyDropListExecutor(0))
+						DropPartyArguments.droplistName(Text.of("name")),
+						GenericArguments.optional(GenericArguments.choices(Text.of("sub"), droplistChoices)),
+						GenericArguments.optional(DropPartyArguments.droplistName(Text.of("party"))))
+				.executor(new DropPartyDropListExecutor())
 				.build();
+		
 		//DropParty clear [name]
 		CommandSpec dropPartyClear = CommandSpec.builder()
 				.description(Descriptions.dropPartyClear)
@@ -136,33 +97,19 @@ public class CommandRegistry {
 				.executor(new DropPartyTpExecutor())
 				.build();
 		
-		//DropParty tier remove [tier] {item:meta}
-		CommandSpec dropPartyTierRemove = CommandSpec.builder()
-				.description(Descriptions.dropPartyTierRemove)
-				.permission(Permissions.dropPartyTierRemove)
-				.arguments(
-						GenericArguments.integer(Text.of("tier")),
-						GenericArguments.optional(GenericArguments.string(Text.of("item"))))
-				.executor(new DropPartyTierExecutor(2))
-				.build();
-		//DropParty tier add [tier] {item:meta}
-		CommandSpec dropPartyTierAdd = CommandSpec.builder()
-				.description(Descriptions.dropPartyTierAdd)
-				.permission(Permissions.dropPartyTierAdd)
-				.arguments(
-						GenericArguments.integer(Text.of("tier")))
-				.executor(new DropPartyTierExecutor(1))
-				.build();
+		Map<String, Integer> tierChoices = new HashMap<String, Integer>();
+		tierChoices.put("add", 1);
+		tierChoices.put("remove", 2);
+		tierChoices.put("clear", 3);
 		
 		//DropParty tier [tier]
 		CommandSpec dropPartyTier = CommandSpec.builder()
 				.description(Descriptions.dropPartyTier)
 				.permission(Permissions.dropPartyTier)
 				.arguments(
-						GenericArguments.integer(Text.of("tier")))
-				.child(dropPartyTierAdd, "add", "a")
-				.child(dropPartyTierRemove, "remove", "r")
-				.executor(new DropPartyTierExecutor(0))
+						GenericArguments.integer(Text.of("tier")),
+						GenericArguments.optional(GenericArguments.choices(Text.of("sub"), tierChoices)))
+				.executor(new DropPartyTierExecutor())
 				.build();
 		
 		//DropParty rename [name] [newname]
@@ -202,8 +149,7 @@ public class CommandRegistry {
 						DropPartyArguments.partyName(Text.of("name")),
 						GenericArguments.optional(GenericArguments.integer(Text.of("x"))),
 						GenericArguments.optional(GenericArguments.integer(Text.of("y"))),
-						GenericArguments.optional(GenericArguments.integer(Text.of("z"))),
-						GenericArguments.optional(GenericArguments.string(Text.of("dim"))))
+						GenericArguments.optional(GenericArguments.integer(Text.of("z"))))
 				.executor(new DropPartyDropExecutor(1))
 				.build();
 		

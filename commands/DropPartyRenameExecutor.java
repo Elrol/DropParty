@@ -8,9 +8,10 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
-import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.TextLibs;
 
 public class DropPartyRenameExecutor implements CommandExecutor {
@@ -23,13 +24,13 @@ public class DropPartyRenameExecutor implements CommandExecutor {
 		SetupConfiguration config = SetupConfiguration.getInstance();
 		config.createParty(src, newname, creator);
 		
-		List<ExtendedBlockPos> chests = config.getChests(name);
+		List<Location<World>> chests = config.getChests(name);
 		for(int i = chests.size()-1; i >= 0; i--) {
 			config.addChest(src, newname, chests.get(i));
 			config.removeChest(src, name, i);
 		}
 		
-		List<ExtendedBlockPos> drops = config.getDrops(name);
+		List<Location<World>> drops = config.getDrops(name);
 		for(int j = drops.size()-1; j >= 0; j--) {
 			config.addDrop(src, newname, drops.get(j));
 			config.removeDrop(src, name, j);

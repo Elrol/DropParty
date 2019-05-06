@@ -7,9 +7,10 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.github.elrol.dropparty.config.SetupConfiguration;
-import com.github.elrol.dropparty.libs.ExtendedBlockPos;
 import com.github.elrol.dropparty.libs.Methods;
 import com.github.elrol.dropparty.libs.TextLibs;
 
@@ -23,11 +24,11 @@ public class DropPartyClearExecutor implements CommandExecutor {
 			TextLibs.pluginError("Argument invalid name");
 			return CommandResult.builder().successCount(0).build();
 		}
-		List<ExtendedBlockPos> chests = config.getChests(name);
-		for(ExtendedBlockPos chest : chests) {
+		List<Location<World>> chests = config.getChests(name);
+		for(Location<World> chest : chests) {
 			Methods.getCarrier(chest).getInventory().clear();
 		}
-		return null;
+		return CommandResult.success();
 	}
 
 }
